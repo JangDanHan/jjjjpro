@@ -16,7 +16,8 @@ export const auth = betterAuth({
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : process.env.V0_RUNTIME_URL),
+        : process.env.V0_RUNTIME_URL ?? 'http://localhost:3000'),
+  secret: process.env.BETTER_AUTH_SECRET ?? 'jeju-weekend-dev-secret-at-least-32-chars-long',
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,

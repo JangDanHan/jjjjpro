@@ -20,7 +20,12 @@ type PageProps = { searchParams: Promise<Record<string, string | string[] | unde
 
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams
-  const session = await auth.api.getSession({ headers: await headers() })
+  let session = null
+  try {
+    session = await auth.api.getSession({ headers: await headers() })
+  } catch {
+    // DB 미연결 또는 초기 로컬 환경에서는 비로그인 게스트 모드로 안전하게 동작
+  }
   const user = session?.user
     ? { id: session.user.id, name: session.user.name, email: session.user.email }
     : null
