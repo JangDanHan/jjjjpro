@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   ArrowRight,
+  Bot,
   CalendarDays,
   Check,
   ChevronDown,
@@ -142,10 +143,43 @@ export function WeekendDashboard({
   )
   const [isLoading, setIsLoading] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [aiInsight, setAiInsight] = useState<string | null>(null)
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false)
+
+  async function requestAiInsight() {
+    if (!result || isGeneratingAi) return
+    setIsGeneratingAi(true)
+    try {
+      const response = await fetch('/api/ai/insight', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          districtType: result.filters.districtType,
+          userType: result.filters.userType,
+          period: `${monthLabel(result.filters.startMonth)}${result.filters.startMonth !== result.filters.endMonth ? ` — ${monthLabel(result.filters.endMonth)}` : ''}`,
+          saturdayTotal: result.saturdayTotal,
+          sundayTotal: result.sundayTotal,
+          difference: result.difference,
+          summary: result.summary,
+        }),
+      })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.insight) {
+          setAiInsight(data.insight)
+        }
+      }
+    } catch {
+      // safe ignore
+    } finally {
+      setIsGeneratingAi(false)
+    }
+  }
 
   async function compare(nextFilters = filters, nextQuestion = question) {
     setIsLoading(true)
     setError(null)
+    setAiInsight(null)
     try {
       // 1. 활성 DB 버전 기반의 실시간 API 비교 (로그인 사용자는 검색 이력 자동 적재)
       const response = await fetch('/api/compare', {
@@ -448,6 +482,38 @@ export function WeekendDashboard({
                   <p className="mt-3 text-[27px] font-extrabold tracking-[-0.05em] text-[#213f68] sm:text-[32px]">{number(result.sundayTotal)}<span className="ml-1 text-sm font-bold tracking-normal">건</span></p>
                 </div>
               </div>
+
+              {result.status !== 'empty' && (
+                <div className="mt-5 rounded-2xl border border-[#d6e7e2] bg-[#f4faf7] p-4 sm:p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="flex size-7 items-center justify-center rounded-lg bg-[#e2f1ec] text-[#0a847a]">
+                        <Bot aria-hidden="true" className="size-4" />
+                      </span>
+                      <div>
+                        <h4 className="text-xs font-bold tracking-[0.08em] text-[#127e74]">GEMINI AI 상권 브리핑</h4>
+                        <p className="text-xs text-[#526f68]">제주데이터허브 공공데이터 기반 소상공인 맞춤 조언</p>
+                      </div>
+                    </div>
+                    {!aiInsight && (
+                      <button
+                        type="button"
+                        onClick={() => void requestAiInsight()}
+                        disabled={isGeneratingAi}
+                        className="inline-flex min-h-9 items-center justify-center gap-1.5 self-start rounded-xl bg-[#0a847a] px-3.5 text-xs font-bold text-white transition hover:bg-[#086f67] disabled:opacity-60 sm:self-auto"
+                      >
+                        {isGeneratingAi ? <RefreshCw aria-hidden="true" className="size-3.5 animate-spin" /> : <Sparkles aria-hidden="true" className="size-3.5" />}
+                        {isGeneratingAi ? 'AI 브리핑 생성 중…' : 'AI 상권 조언 받기'}
+                      </button>
+                    )}
+                  </div>
+                  {aiInsight && (
+                    <div className="mt-3.5 rounded-xl border border-[#cbe3db] bg-white p-4 text-sm leading-6 text-[#294c44] shadow-sm">
+                      <p className="font-medium">{aiInsight}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {result.status === 'empty' ? (
                 <div className="mt-5 rounded-2xl border border-dashed border-[#d8e2de] bg-[#fafcfb] px-4 py-8 text-center">

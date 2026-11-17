@@ -1,8 +1,8 @@
 /**
- * Gemini API 클라이언트 유틸리티
+ * Google Gemini API 클라이언트 유틸리티
  * 
  * 환경 변수 우선순위:
- * 1. GEMINI_API_KEY (권장 표준)
+ * 1. GEMINI_API_KEY (표준 권장)
  * 2. GOOGLE_API_KEY
  * 3. GOOGLE_GENAI_API_KEY
  */
@@ -19,8 +19,14 @@ export function isGeminiConfigured(): boolean {
   return Boolean(getGeminiApiKey())
 }
 
+const CANDIDATE_MODELS = [
+  'gemini-flash-lite-latest',
+  'gemini-3.8-flash',
+  'gemini-flash-latest',
+]
+
 /**
- * 제주 주말 소비 비교 결과를 기반으로 소상공인/상인회를 위한 AI 인사이트 및 브리핑 생성
+ * 제주 주말 소비 비교 결과를 기반으로 소상공인/상인회를 위한 AI 상권 인사이트 생성
  */
 export async function generateConsumptionInsight(params: {
   districtType: string
@@ -45,34 +51,35 @@ export async function generateConsumptionInsight(params: {
 - 요일 차이(토요일 - 일요일): ${params.difference > 0 ? '+' : ''}${params.difference.toLocaleString('ko-KR')}건
 - 집계 요약: ${params.summary}
 
-소상공인 및 상인회 담당자가 상권 운영 및 주말 마케팅에 참고할 수 있도록, 2~3문장의 명확하고 실용적인 요약 인사이트를 한국어로 작성해 주세요.`
+소상공인 및 상인회 담당자가 매장 운영, 재고 준비, 주말 프로모션에 참고할 수 있도록, 2~3문장의 명확하고 실용적인 요약 인사이트를 한국어로 작성해 주세요. 문단 구분 없이 자연스러운 한국어 문장으로 답변하세요.`
 
-  try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 300,
-        },
-      }),
-    })
+  for (const model of CANDIDATE_MODELS) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 300,
+          },
+        }),
+      })
 
-    if (!response.ok) {
-      console.warn(`[Gemini API] Request failed with status ${response.status}`)
-      return null
+      if (response.ok) {
+        const data = (await response.json()) as {
+          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+        }
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+        if (text?.trim()) return text.trim()
+      }
+    } catch {
+      // 다음 후보 모델로 폴백
+      continue
     }
-
-    const data = (await response.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-    }
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-    return text?.trim() || null
-  } catch (error) {
-    console.warn('[Gemini API] Error generating insight:', error instanceof Error ? error.message : error)
-    return null
   }
+
+  return null
 }
