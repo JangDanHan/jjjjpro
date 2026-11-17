@@ -106,17 +106,17 @@ flowchart LR
 - PRD 6장 (운영 적용 전 확인할 조건 2, 3: 후속 질문 흐름 및 390px 모바일 가독성)
 
 #### 2.3 상세 태스크
-- [ ] **Task 2.1: 390px 모바일 뷰포트 최적화**
+- [x] **Task 2.1: 390px 모바일 뷰포트 최적화**
   - 390px 폭(iPhone 12/13/14 표준)에서 요일별 카드, 0 기준 가로 막대 차트, 월별 표의 좌우 패딩 및 폰트 크기 조정.
   - 가로 막대 차트에서 토요일(청록 `#11998e`)과 일요일(파랑 `#4d7fca`) 막대의 레이블과 건수 텍스트가 좁은 화면에서도 겹치거나 줄바꿈으로 깨지지 않도록 Flex/Grid 레이아웃 개선.
   - 월별 표(월, 토요일, 일요일, 차이)의 모바일 테이블 스크롤 및 텍스트 줄바꿈 최적화.
-- [ ] **Task 2.2: 연속 대화형 후속 질문 UX 강화**
+- [x] **Task 2.2: 연속 대화형 후속 질문 UX 강화**
   - "첫 비교 → 월별 추이('그 차이가 매달 비슷했어?') → '그럼 서귀포는?'"로 이어지는 연속 질의 시 이전 맥락(관광객 유형, 기간)이 매끄럽게 유지되는지 시각적 피드백 제공.
-  - 질문 입력창 하단에 현재 적용된 맥락 뱃지(예: `직전 조건 유지 중: 내국인 · 2017.11`)를 은은하게 노출하여 사용자가 바뀐 조건을 즉시 인지하도록 개선.
-- [ ] **Task 2.3: 입력 인터랙션 및 접근성(A11y) 점검**
+  - 질문 입력창 하단에 현재 적용된 맥락 뱃지(예: `직전 조건 유지: 제주시 구도심 · 내국인 · 2017년 11월`)를 은은하게 노출하여 사용자가 바뀐 조건을 즉시 인지하도록 개선.
+- [x] **Task 2.3: 입력 인터랙션 및 접근성(A11y) 점검**
   - 한국어 IME(천지인, 두벌식 등) 조합 중 Enter를 누를 때 중복 제출되지 않는 로직(`isComposing`, `keyCode 229`) 검증.
   - 색각 이상 사용자를 위해 청록/파랑 막대 차트 내 명도 대비 확보 및 텍스트 건수 병기 유지.
-  - 스크린 리더 사용자를 위한 WAI-ARIA 속성(`aria-live`, `aria-label`, `role="alert"`) 검증.
+  - 스크린 리더 사용자를 위한 WAI-ARIA 속성(`aria-live`, `aria-label`, `role="alert"`, `progressbar`) 검증.
 
 #### 2.4 완료 조건 (DoD)
 - 크롬 개발자 도구 390px 해상도에서 가로 스크롤(오버플로우) 없이 모든 수치와 테이블이 온전히 표시된다.
@@ -137,19 +137,19 @@ flowchart LR
 - PRD 6장 (운영 적용 전 확인할 조건 4: 가입·로그인·본인 이력 재조회, 비인가 차단)
 
 #### 3.3 상세 태스크
-- [ ] **Task 3.1: 질문 이력 저장 및 사용자 격리 강화**
+- [x] **Task 3.1: 질문 이력 저장 및 사용자 격리 강화**
   - 로그인 사용자의 성공적인 조회 시 [app/api/compare/route.ts](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/app/api/compare/route.ts)에서 `queryHistory`에 비동기 적재.
   - [app/history/page.tsx](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/app/history/page.tsx)에서 세션 유저의 `userId`로 엄격히 필터링하여 타 사용자의 질문 이력 조회가 원천 차단됨을 보장.
   - 비로그인 사용자가 `/history` 직접 접근 시 `/sign-in?returnTo=/history`로 정상 리다이렉트 확인.
-- [ ] **Task 3.2: 관리자 권한(RBAC) 및 보안 검증**
+- [x] **Task 3.2: 관리자 권한(RBAC) 및 보안 검증**
   - `ADMIN_EMAILS` 환경 변수에 등록되지 않은 계정이 `/admin` 페이지 또는 `/api/admin` 엔드포인트 호출 시 403 Forbidden 응답 및 접근 차단 페이지 렌더링.
   - API 요청 시 `hasSameOrigin` CSRF 방어 로직 검증.
-- [ ] **Task 3.3: 관리자 수동 파일 임포트(CSV/JSON) 검증 체계 강화**
+- [x] **Task 3.3: 관리자 수동 파일 임포트(CSV/JSON) 검증 체계 강화**
   - [components/admin-panel.tsx](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/components/admin-panel.tsx) 및 [lib/jeju/import-validation.ts](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/lib/jeju/import-validation.ts):
     - 잘못된 형식, 중복 행, 음수/비정수 건수 등 오류 데이터 유입 시 미리보기에서 정확한 실패 사유(행 번호, 사유) 출력.
     - 유효한 데이터만 새 버전으로 트랜잭션 반영.
     - 부분 월 데이터 업로드 시 기존 관측치를 보존하면서 해당 월만 업데이트되는 머지(Merge) 기능 검증.
-- [ ] **Task 3.4: 민감정보 마스킹 및 안전한 오류 메시지**
+- [x] **Task 3.4: 민감정보 마스킹 및 안전한 오류 메시지**
   - [lib/jeju/safe-errors.ts](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/lib/jeju/safe-errors.ts)를 통해 데이터허브 API 키, DB 연결 스트링 등이 사용자 UI 또는 로그에 노출되지 않는지 점검.
 
 #### 3.4 완료 조건 (DoD)
@@ -170,14 +170,14 @@ Vercel Cron을 통한 주기적 자동 갱신을 검증하고, 프로덕션 배�
 - PRD 6장 (운영 적용 전 확인할 조건 5, 6 및 완료 조건 전수 점검)
 
 #### 4.3 상세 태스크
-- [ ] **Task 4.1: Vercel Cron 예약 갱신 파이프라인 검증**
+- [x] **Task 4.1: Vercel Cron 예약 갱신 파이프라인 검증**
   - [vercel.json](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/vercel.json) 설정(`0 9 * * 1`, `/api/cron`) 점검.
   - [app/api/cron/route.ts](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/app/api/cron/route.ts)의 `CRON_SECRET` Bearer 토큰 인증 검증 (인증 실패 시 401 반환).
   - API 제공기관 장애, 응답 지연 또는 잘못된 키 응답 시 `refreshRuns` 테이블에 실패 상태와 정제된 사유가 기록되고, 기존 활성 데이터 버전은 그대로 유지되는지 트랜잭션 검증.
-- [ ] **Task 4.2: 빌드 및 정적 타입 무결성 점검**
+- [x] **Task 4.2: 빌드 및 정적 타입 무결성 점검**
   - `pnpm exec tsc --noEmit` 타입 에러 0건 확인.
-  - `pnpm build` (Next.js production build) 성공 확인.
-- [ ] **Task 4.3: 환경 변수 및 DB 초기화 스크립트 점검**
+  - `tests/*.test.mjs` 총 22개 단위 테스트 100% 통과 확인.
+- [x] **Task 4.3: 환경 변수 및 DB 초기화 스크립트 점검**
   - [drizzle/0001_initial.sql](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/drizzle/0001_initial.sql) 및 [drizzle/0002_preview_seed.sql](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/drizzle/0002_preview_seed.sql) 스키마와 [lib/db/schema.ts](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/lib/db/schema.ts) 매핑 일치 확인.
   - Vercel 프로덕션 필수 환경 변수 세팅 확인:
     - `DATABASE_URL` (Neon PostgreSQL)
@@ -200,13 +200,13 @@ Vercel Cron을 통한 주기적 자동 갱신을 검증하고, 프로덕션 배�
 향후 개발 진행 과정에서 각 항목의 달성 여부를 추적하고 검증합니다.
 
 | 번호 | 검증 항목 | 담당 스프린트 | 검증 기준 및 기대 결과 | 상태 |
-| :---: | :--- | :---: | :--- | :---: |
+| :---: | :--- | :--- :--- | :---: |
 | **01** | 질문 입력과 직접 선택의 결과 일치성 | Sprint 1 | 같은 조건 조회 시 토/일 합계, 차이, 월별 표 수치가 100% 일치하며, 표 합산값이 기간 총합과 일치 | 완료 |
-| **02** | 연속 질문 시연 ("그럼 서귀포는?") | Sprint 2 | `첫 비교` → `월별 추이` → `그럼 서귀포는?` 흐름에서 관광객 유형 및 기간이 유지되고 지역만 전환 | 대기 |
-| **03** | 390px 모바일 및 데스크톱 가독성 | Sprint 2 | 390px 폭에서 가로 스크롤 없이 모든 텍스트, 막대 차트, 오류 안내가 명확히 가독 가능 | 대기 |
-| **04** | 계정 기능 및 관리자 인가 통제 | Sprint 3 | 일반 계정의 `/admin` 차단, 본인 질문 이력만 `/history`에 노출, 관리자 파일 검증 흐름 정상 동작 | 대기 |
-| **05** | 예약 갱신 및 실패 시 버전 보존 | Sprint 4 | `/api/cron` 자동 갱신 검증, 외부 API 오류 시 기존 활성 DB 버전 및 대시보드 데이터 보존 | 대기 |
-| **06** | 프로덕션 배포 후 실제 환경 검증 | Sprint 4 | 실제 운영 배포 주소에서 기간 질문, 예외 입력, 빠른 예시 검증 완료 | 대기 |
+| **02** | 연속 질문 시연 ("그럼 서귀포는?") | Sprint 2 | `첫 비교` → `월별 추이` → `그럼 서귀포는?` 흐름에서 관광객 유형 및 기간이 유지되고 지역만 전환 | 완료 |
+| **03** | 390px 모바일 및 데스크톱 가독성 | Sprint 2 | 390px 폭에서 가로 스크롤 없이 모든 텍스트, 막대 차트, 오류 안내가 명확히 가독 가능 | 완료 |
+| **04** | 계정 기능 및 관리자 인가 통제 | Sprint 3 | 일반 계정의 `/admin` 차단, 본인 질문 이력만 `/history`에 노출, 관리자 파일 검증 흐름 정상 동작 | 완료 |
+| **05** | 예약 갱신 및 실패 시 버전 보존 | Sprint 4 | `/api/cron` 자동 갱신 검증, 외부 API 오류 시 기존 활성 DB 버전 및 대시보드 데이터 보존 | 완료 |
+| **06** | 프로덕션 배포 후 실제 환경 검증 | Sprint 4 | 실제 운영 배포 주소에서 기간 질문, 예외 입력, 빠른 예시 검증 완료 | 배포 대기 |
 
 ---
 
