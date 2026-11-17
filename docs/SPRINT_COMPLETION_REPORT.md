@@ -97,3 +97,4 @@
 | `JEJUDATAHUB_DATASET_URL` | 제주데이터허브 608번 프록시 URL | `https://open.jejudatahub.net/api/proxy/608` |
 | `JEJUDATAHUB_API_KEY` | 제주데이터허브 발급 프로젝트 키 | `개인 발급 API 키` |
 | `CRON_SECRET` | Vercel Cron 호출 인증 시크릿 | `고유한 토큰 문자열` |
+| `GEMINI_API_KEY` | Google Gemini API 키 (선택 사항, 상권 브리핑 및 자연어 강화) | `AQ.Ab...` 또는 `AIza...` |

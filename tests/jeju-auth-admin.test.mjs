@@ -3,6 +3,7 @@ import test from 'node:test'
 import { isAdminEmail } from '../lib/admin.ts'
 import { hasSameOrigin } from '../lib/security.ts'
 import { sanitizeProviderFailureReason } from '../lib/jeju/safe-errors.ts'
+import { getGeminiApiKey, isGeminiConfigured } from '../lib/gemini.ts'
 
 test('Sprint 3: isAdminEmail validates admin permissions accurately', () => {
   const originalEnv = process.env.ADMIN_EMAILS
@@ -101,3 +102,27 @@ test('Sprint 4: Cron secret validation logic rejects unauthorized requests', () 
   assert.equal(verifyCronAuth(`Bearer ${cronSecret}`, cronSecret).status, 200)
   assert.equal(verifyCronAuth(`Bearer ${cronSecret}`, undefined).status, 401)
 })
+
+test('Gemini API: getGeminiApiKey resolves key with fallback support', () => {
+  const originalEnv = { ...process.env }
+  try {
+    delete process.env.GEMINI_API_KEY
+    delete process.env.GOOGLE_API_KEY
+    delete process.env.GOOGLE_GENAI_API_KEY
+
+    assert.equal(isGeminiConfigured(), false)
+    assert.equal(getGeminiApiKey(), null)
+
+    process.env.GEMINI_API_KEY = 'test-gemini-key'
+    assert.equal(isGeminiConfigured(), true)
+    assert.equal(getGeminiApiKey(), 'test-gemini-key')
+
+    delete process.env.GEMINI_API_KEY
+    process.env.GOOGLE_API_KEY = 'test-google-key'
+    assert.equal(isGeminiConfigured(), true)
+    assert.equal(getGeminiApiKey(), 'test-google-key')
+  } finally {
+    process.env = originalEnv
+  }
+})
+
