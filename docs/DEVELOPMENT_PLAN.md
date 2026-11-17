@@ -25,17 +25,17 @@
 
 ---
 
-## 2. 현황 분석 및 PRD Gap 분석
+## 2. 현황 분석 및 PRD Gap 분석 (해결 현황)
 
-현재 코드베이스는 15개의 단위 테스트([tests/jeju-question.test.mjs](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/tests/jeju-question.test.mjs), [tests/jeju-import.test.mjs](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/tests/jeju-import.test.mjs))를 통과하고 있으며 기본 골격이 구축되어 있습니다. 그러나 PRD 완성 기준을 충족하기 위해 해결해야 할 핵심 과제들이 존재합니다.
+현재 코드베이스는 총 22개의 단위 테스트([tests/jeju-question.test.mjs](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/tests/jeju-question.test.mjs), [tests/jeju-import.test.mjs](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/tests/jeju-import.test.mjs), [tests/jeju-consistency.test.mjs](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/tests/jeju-consistency.test.mjs), [tests/jeju-auth-admin.test.mjs](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/tests/jeju-auth-admin.test.mjs))를 100% 통과하고 있으며, PRD에서 도출되었던 갭들이 스프린트 1~4를 거쳐 모두 해소되었습니다.
 
-| 영역 | 현재 상태 | PRD 요구사항 및 Gap | 개선 방향 |
-| :--- | :--- | :--- | :--- |
-| **데이터 동기화** | 클라이언트([components/weekend-dashboard.tsx](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/components/weekend-dashboard.tsx))가 정적 파일(`/jeju-weekend-608.json`)만 직접 조회 | PRD 4장 명시: "관리자에서 적용한 새 DB 버전을 화면의 데이터와 동기화하는 작업은 남아 있다." | 화면 진입 및 조회 시 활성 DB 데이터셋을 우선 반영하고, 오프라인/DB 장애 시 내장 JSON으로 안전하게 Fallback 하도록 연동 |
-| **질문 이력 재조회** | URL 파라미터(`?replay=...`)로 진입 시 서버 컴포넌트([app/page.tsx](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/app/page.tsx))에서 고정된 미리보기 데이터만 로드 | 저장된 조건과 함께 활성 DB 버전 데이터로 재집계하고, 질문 인텐트(추이, 조회 가능월)도 복원 필요 | 이력 재조회 시 `readDataset()` 저장소 함수를 거쳐 활성 버전 기반으로 계산 |
-| **화면 반응형/접근성** | 390px 모바일 및 데스크톱 기본 스타일 작성됨 | PRD 3장, 6장: 390px 모바일 뷰포트에서 가로 스크롤/잘림 없는 가독성 및 스크린리더 접근성 보장 필요 | 390px 뷰포트 정밀 검증, 막대 차트 축소 비율 및 표 오버플로우 방지, ARIA 속성 점검 |
-| **인증 및 권한 통제** | Better Auth + 관리자 이메일 목록(`ADMIN_EMAILS`) 연동 | 비인가 계정의 `/admin` 및 관리자 API 차단 확인, 타 사용자 이력 격리 보장 | 미인증/비관리자 권한 인가 로직 및 보안 헤더(Same-Origin) 전수 검증 |
-| **운영 갱신 및 배포** | Vercel Cron(`vercel.json`) 및 수동 임포트 로직 작성됨 | PRD 5장, 6장: 운영 환경에서 실제 갱신 실패 시 롤백 및 기존 데이터 보존, 유효성 실패 검증 미확인 | Mock 및 스테이징 환경에서 에러 케이스(잘못된 키, 스키마 오류, 부분 월 머지) 시뮬레이션 |
+| 영역 | 초기 상태 및 Gap | 개선 및 구현 결과 | 상태 |
+| :--- | :--- | :--- | :---: |
+| **데이터 동기화** | 클라이언트가 정적 JSON만 조회하여 관리자 DB 버전 미반영 | `readDataset()` 저장소 파이프라인과 `/api/compare`를 구축하여 DB 활성 버전을 우선 반영하고 무중단 정적 폴백 연동 | ✅ 완료 |
+| **질문 이력 재조회** | `?replay=...` 시 정적 데이터 고정 및 인텐트 손실 | 세션 사용자 본인 이력 격리 조회(`user.id`), 활성 DB 기준 재집계, 인텐트(`availability`, `monthly`) 온전 복원 | ✅ 완료 |
+| **화면 반응형/접근성** | 390px 모바일 가독성 및 스크린리더 미흡 우려 | 390px 뷰포트 레이아웃 최적화, 한글 IME 조합 중 Enter 방지, ARIA `progressbar`/`role="alert"` 속성 완비 | ✅ 완료 |
+| **인증 및 권한 통제** | 비인가 사용자의 `/admin` 및 CSRF 방어 점검 필요 | `ADMIN_EMAILS` 기반 RBAC 검증, `hasSameOrigin` 헤더 검증, 이력 데이터 사용자 격리 완료 | ✅ 완료 |
+| **운영 갱신 및 배포** | 갱신 실패 시 롤백 및 에러 사유 마스킹 필요 | 트랜잭션 기반 롤백, Vercel Cron Bearer 토큰 검증, `safe-errors`로 민감정보 마스킹 체계 확립 | ✅ 완료 |
 
 ---
 
@@ -215,19 +215,19 @@ Vercel Cron을 통한 주기적 자동 갱신을 검증하고, 프로덕션 배�
 ### 로컬 실행 환경
 ```bash
 # 1. 의존성 설치
-pnpm install (또는 npm install)
+pnpm install
 
-# 2. 테스트 스위트 실행 (단위 테스트 15종)
-npm test
+# 2. 테스트 스위트 실행 (단위 테스트 22종 전수 검증)
+pnpm test
 
 # 3. 정적 타입 검사
-npx tsc --noEmit
+pnpm exec tsc --noEmit
 
 # 4. 프로덕션 빌드 검사
-npm run build
+pnpm build
 
 # 5. 로컬 개발 서버 기동
-npm run dev
+pnpm dev
 ```
 
 ### 이슈 관리 및 문서 업데이트 규칙
