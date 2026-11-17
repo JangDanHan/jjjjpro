@@ -281,34 +281,42 @@ export function WeekendDashboard({
     <div className="min-h-screen bg-[#f4f6f5] text-[#14273a]">
       <header className="border-b border-[#e7ebe9] bg-white/90">
         <div className="mx-auto flex max-w-[1160px] items-center justify-between gap-4 px-5 py-4 sm:px-8">
-          <Link href="/" className="flex items-center gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#137f78]">
-            <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-[14px] bg-[#e8f4f1] text-[#087e77]">
+          <Link href="/" className="flex items-center gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#005BAC]">
+            <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-[14px] bg-[#EFF6FF] text-[#005BAC]">
               <span className="size-3 rounded-full border-[3px] border-current" />
             </span>
             <span className="flex flex-col leading-tight">
-              <span className="text-[16px] font-extrabold tracking-[-0.04em]">제주 주말소비</span>
-              <span className="mt-1 text-[10px] font-semibold tracking-[0.15em] text-[#7a8c99]">JEJU WEEKEND DATA</span>
+              <span className="text-[11px] font-bold tracking-[0.05em] text-[#005BAC]">(재)제주테크노파크 빅데이터 센터</span>
+              <span className="text-[16px] font-extrabold tracking-[-0.04em]">제주 구도심 주말소비 분석 콘솔</span>
             </span>
           </Link>
 
-          {user ? (
-            <details className="relative group">
-              <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-[#e2e8e5] bg-white py-1.5 pl-2 pr-3 text-sm font-semibold shadow-sm outline-none transition hover:border-[#bfd6d0] focus-visible:ring-2 focus-visible:ring-[#137f78] [&::-webkit-details-marker]:hidden">
-                <span className="flex size-8 items-center justify-center rounded-full bg-[#eef3f2] text-[#46635d]"><UserRound aria-hidden="true" className="size-4" /></span>
-                <span className="max-w-[112px] truncate sm:max-w-none">{user.name}</span>
-                <ChevronDown aria-hidden="true" className="size-4 text-[#788997] transition group-open:rotate-180" />
-              </summary>
-              <nav aria-label="계정 메뉴" className="absolute right-0 top-[calc(100%+8px)] z-20 flex min-w-[190px] flex-col gap-1 rounded-2xl border border-[#e4eae7] bg-white p-2 shadow-[0_16px_40px_rgba(23,43,55,0.12)]">
-                <Link href="/history" className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-[#33485a] hover:bg-[#f3f7f5]"><History aria-hidden="true" className="size-4" /> 질문 이력</Link>
-                {isAdmin && <Link href="/admin" className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-[#33485a] hover:bg-[#f3f7f5]"><ShieldCheck aria-hidden="true" className="size-4" /> 관리자 화면</Link>}
-                <button type="button" onClick={() => void signOut()} disabled={isSigningOut} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-[#7f4c4b] hover:bg-[#fff4f2] disabled:opacity-60"><LogOut aria-hidden="true" className="size-4" /> {isSigningOut ? '로그아웃 중…' : '로그아웃'}</button>
-              </nav>
-            </details>
-          ) : (
-            <Link href="/sign-in" className="inline-flex items-center gap-2 rounded-full border border-[#dce5e1] bg-white px-4 py-2.5 text-sm font-semibold text-[#31495a] transition hover:border-[#9ebbb2] hover:bg-[#f8fbf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#137f78]">
-              <UserRound aria-hidden="true" className="size-4" /> 로그인
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="hidden items-center gap-1.5 rounded-xl border border-[#CBD5E1] bg-white px-3.5 py-1.5 text-xs font-bold text-[#334155] transition hover:bg-[#F8FAFC] sm:inline-flex"
+            >
+              서비스 소개 홈
             </Link>
-          )}
+            {user ? (
+              <details className="relative group">
+                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-[#e2e8e5] bg-white py-1.5 pl-2 pr-3 text-sm font-semibold shadow-sm outline-none transition hover:border-[#bfd6d0] focus-visible:ring-2 focus-visible:ring-[#137f78] [&::-webkit-details-marker]:hidden">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-[#eef3f2] text-[#46635d]"><UserRound aria-hidden="true" className="size-4" /></span>
+                  <span className="max-w-[112px] truncate sm:max-w-none">{user.name}</span>
+                  <ChevronDown aria-hidden="true" className="size-4 text-[#788997] transition group-open:rotate-180" />
+                </summary>
+                <nav aria-label="계정 메뉴" className="absolute right-0 top-[calc(100%+8px)] z-20 flex min-w-[190px] flex-col gap-1 rounded-2xl border border-[#e4eae7] bg-white p-2 shadow-[0_16px_40px_rgba(23,43,55,0.12)]">
+                  <Link href="/history" className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-[#33485a] hover:bg-[#f3f7f5]"><History aria-hidden="true" className="size-4" /> 질문 이력</Link>
+                  {isAdmin && <Link href="/admin" className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-[#33485a] hover:bg-[#f3f7f5]"><ShieldCheck aria-hidden="true" className="size-4" /> 관리자 화면</Link>}
+                  <button type="button" onClick={() => void signOut()} disabled={isSigningOut} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-[#7f4c4b] hover:bg-[#fff4f2] disabled:opacity-60"><LogOut aria-hidden="true" className="size-4" /> {isSigningOut ? '로그아웃 중…' : '로그아웃'}</button>
+                </nav>
+              </details>
+            ) : (
+              <Link href="/sign-in" className="inline-flex items-center gap-2 rounded-full border border-[#dce5e1] bg-white px-4 py-2.5 text-sm font-semibold text-[#31495a] transition hover:border-[#9ebbb2] hover:bg-[#f8fbf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#137f78]">
+                <UserRound aria-hidden="true" className="size-4" /> 로그인
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 

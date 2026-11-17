@@ -9,4 +9,9 @@ export const pool = new Pool({
   connectionTimeoutMillis: 8_000,
 })
 
+pool.on('error', (err) => {
+  // DB 미연결 또는 연결 유휴 만료 시 프로세스 중단 방지
+  console.warn('[Postgres Pool Error]', err?.message || err)
+})
+
 export const db = drizzle(pool, { schema })
