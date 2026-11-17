@@ -582,7 +582,202 @@ export function LandingPortal({ user, isAdmin }: Props) {
               </div>
             </section>
 
-            {/* 4-Stage Data Governance Pipeline */}
+            {/* Live Console Demo Preview Showcase */}
+            <section className="mb-14 flex flex-col gap-4">
+              <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                <div>
+                  <span className="text-xs font-bold tracking-wider text-[#006760]">LIVE INTERFACE PREVIEW</span>
+                  <h2 className="text-2xl font-bold tracking-tight text-[#111c2c] sm:text-3xl">전문가용 콘솔을 누구나 쉽게</h2>
+                </div>
+                <Link
+                  href="/console"
+                  className="flex items-center gap-1.5 self-start rounded-lg bg-[#005bac] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#004482] sm:self-auto"
+                >
+                  <span>콘솔 전체 화면으로 열기</span>
+                  <ExternalLink className="size-3.5" />
+                </Link>
+              </div>
+
+              {/* UI Mockup Container */}
+              <div className="flex flex-col gap-4 overflow-hidden rounded-2xl bg-white p-5 shadow-md lg:p-7">
+                {/* Mock Top Bar */}
+                <div className="flex items-center justify-between border-b border-[#e7eeff] pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="size-3 rounded-full bg-[#ba1a1a]" />
+                    <span className="size-3 rounded-full bg-[#77a5ff]" />
+                    <span className="size-3 rounded-full bg-[#006760]" />
+                    <span className="ml-2 text-xs font-semibold text-[#111c2c]">실시간 분석 콘솔 프리뷰 (버전 2.4-공공표준)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-[#424751]">
+                    <CheckCircle className="size-4 text-[#006760]" />
+                    <span>동기화 완료: 2017-11-30</span>
+                  </div>
+                </div>
+
+                {/* Mockup Grid Content */}
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                  {/* Mock Left: Natural Language Input & Chat Box */}
+                  <div className="flex flex-col justify-between gap-4 rounded-xl bg-[#f0f3ff] p-4 lg:col-span-4">
+                    <div className="flex flex-col gap-3">
+                      <span className="text-xs font-bold uppercase tracking-wide text-[#004482]">자연어 분석기 질의 예시</span>
+                      <div className="flex flex-col gap-2.5">
+                        <div className="max-w-[88%] self-end rounded-xl bg-[#005bac] p-2.5 text-xs text-white">
+                          2017년 10월 제주시 구도심 토요일 소비량 얼마야?
+                        </div>
+                        <div className="flex max-w-[92%] flex-col gap-1 self-start rounded-xl bg-white p-2.5 text-xs text-[#111c2c] shadow-sm">
+                          <span className="font-bold text-[#004d47]">집계 완료 (1:1 주말 매칭)</span>
+                          <span className="leading-relaxed">총 14,812건 (일요일 대비 +512건 우세)입니다. 주요 소비 시간대는 13~15시입니다.</span>
+                        </div>
+                        <div className="max-w-[88%] self-end rounded-xl bg-[#005bac] p-2.5 text-xs text-white">
+                          그럼 서귀포시는 어땠어?
+                        </div>
+                        <div className="flex max-w-[92%] flex-col gap-1 self-start rounded-xl bg-white p-2.5 text-xs text-[#111c2c] shadow-sm">
+                          <span className="font-bold text-[#265cb1]">문맥 유지: 2017년 10월</span>
+                          <span className="leading-relaxed">서귀포시 구도심 토요일은 10,230건으로 제주시와 달리 야간 18~20시 집중도가 높습니다.</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/console?question=${encodeURIComponent('11월 중국인 소비 패턴은 어때?')}`}
+                      className="group flex items-center gap-2 rounded-xl bg-white p-1.5 shadow-sm transition hover:ring-2 hover:ring-[#005bac]"
+                    >
+                      <input
+                        className="w-full bg-transparent px-2.5 py-1 text-xs text-[#111c2c] outline-none cursor-pointer"
+                        readOnly
+                        type="text"
+                        value="11월 중국인 소비 패턴은 어때?"
+                      />
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#005bac] text-white transition-transform group-hover:scale-105">
+                        <Send className="size-3.5" />
+                      </span>
+                    </Link>
+                  </div>
+
+                  {/* Mock Right: Chart & Metric Breakdown */}
+                  <div className="flex flex-col gap-4 lg:col-span-8">
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                      <div className="flex flex-col rounded-xl bg-[#f0f3ff] p-3.5">
+                        <span className="text-xs font-medium text-[#424751]">15개월 누적 관측 건수</span>
+                        <span className="mt-1 text-xl font-bold text-[#111c2c]">384,290<span className="ml-0.5 text-xs font-normal">건</span></span>
+                        <span className="text-[11px] font-semibold text-[#004d47]">무결성 100% 인증</span>
+                      </div>
+                      <div className="flex flex-col rounded-xl bg-[#f0f3ff] p-3.5">
+                        <span className="text-xs font-medium text-[#424751]">토요일 평균 우세율</span>
+                        <span className="mt-1 text-xl font-bold text-[#004482]">+2.45<span className="ml-0.5 text-xs font-normal">%</span></span>
+                        <span className="text-[11px] font-semibold text-[#004482]">15개월 중 13개월 토요일 리드</span>
+                      </div>
+                      <div className="flex flex-col rounded-xl bg-[#f0f3ff] p-3.5">
+                        <span className="text-xs font-medium text-[#424751]">외국인 일요 반등률</span>
+                        <span className="mt-1 text-xl font-bold text-[#265cb1]">+5.21<span className="ml-0.5 text-xs font-normal">%</span></span>
+                        <span className="text-[11px] font-semibold text-[#265cb1]">출국 직전 면세·특산품 결제</span>
+                      </div>
+                    </div>
+
+                    {/* Synthetic Interactive SVG Bar Graph */}
+                    <div className="flex flex-col gap-2 rounded-xl bg-[#f0f3ff] p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-[#111c2c]">2017년 하반기 토요일 vs 일요일 월별 결제 건수 추이</span>
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="flex items-center gap-1.5">
+                            <span className="size-2.5 rounded bg-[#004d47]" />
+                            <span>토요일</span>
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <span className="size-2.5 rounded bg-[#265cb1]" />
+                            <span>일요일</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* SVG Data Visualisation */}
+                      <div className="h-44 w-full pt-2">
+                        <svg className="h-full w-full" preserveAspectRatio="none" viewBox="0 0 600 160">
+                          {/* Grid Lines */}
+                          <line stroke="#dee8ff" strokeWidth="1" x1="40" x2="580" y1="20" y2="20" />
+                          <line stroke="#dee8ff" strokeWidth="1" x1="40" x2="580" y1="60" y2="60" />
+                          <line stroke="#dee8ff" strokeWidth="1" x1="40" x2="580" y1="100" y2="100" />
+                          <line stroke="#dee8ff" strokeWidth="1" x1="40" x2="580" y1="140" y2="140" />
+
+                          {/* Month 7 */}
+                          <rect fill="#004d47" height="102" rx="3" width="22" x="70" y="38" />
+                          <rect fill="#265cb1" height="92" rx="3" width="22" x="96" y="48" />
+                          <text fill="#424751" fontSize="11" textAnchor="middle" x="94" y="155">7월</text>
+
+                          {/* Month 8 (Peak Summer) */}
+                          <rect fill="#004d47" height="116" rx="3" width="22" x="160" y="24" />
+                          <rect fill="#265cb1" height="108" rx="3" width="22" x="186" y="32" />
+                          <text fill="#424751" fontSize="11" textAnchor="middle" x="184" y="155">8월</text>
+
+                          {/* Month 9 */}
+                          <rect fill="#004d47" height="96" rx="3" width="22" x="250" y="44" />
+                          <rect fill="#265cb1" height="88" rx="3" width="22" x="276" y="52" />
+                          <text fill="#424751" fontSize="11" textAnchor="middle" x="274" y="155">9월</text>
+
+                          {/* Month 10 */}
+                          <rect fill="#004d47" height="110" rx="3" width="22" x="340" y="30" />
+                          <rect fill="#265cb1" height="100" rx="3" width="22" x="366" y="40" />
+                          <text fill="#424751" fontSize="11" textAnchor="middle" x="364" y="155">10월</text>
+
+                          {/* Month 11 */}
+                          <rect fill="#004d47" height="94" rx="3" width="22" x="430" y="46" />
+                          <rect fill="#265cb1" height="90" rx="3" width="22" x="456" y="50" />
+                          <text fill="#424751" fontSize="11" textAnchor="middle" x="454" y="155">11월</text>
+
+                          {/* Trend overlay line for Sat */}
+                          <polyline fill="none" points="81,38 171,24 261,44 351,30 441,46" stroke="#81e5da" strokeDasharray="4" strokeWidth="2" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Visual Richness Section: Spatial District Context */}
+            <section className="mb-14 grid grid-cols-1 gap-4 md:grid-cols-12">
+              <div className="flex flex-col justify-between rounded-2xl bg-[#f0f3ff] p-6 md:col-span-6 sm:p-8">
+                <div className="flex flex-col gap-2">
+                  <span className="w-fit rounded bg-[#004482] px-2 py-0.5 text-xs font-semibold text-white">공간 빅데이터 결합</span>
+                  <h3 className="text-xl font-bold text-[#111c2c]">제주시 관덕정·칠성로 원도심권</h3>
+                  <p className="text-xs leading-relaxed text-[#424751]">
+                    제주 목관아, 동문시장, 칠성로 지하상가로 연결되는 역사문화 소비 벨트. 토요일 14~18시 청소년 및 도민 가족단위 소비가 가장 집중되는 권역입니다.
+                  </p>
+                </div>
+                <div className="relative mt-5 h-48 overflow-hidden rounded-xl shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzTRnCHl-37VoiJCWtXIkYQHLJCnk3w3I2zOSELh8iYGV_0PXSQpejl6MqgiHkGASunGqqRBvnZcWLC4CJec7JwlEcjt4TMiNaxMGV3Um9T5qxCYOgxWaFhHGuB72dbNlhuBbFTQ-lcC075NEtp62E9_1kE-UJ6W784UNo_OzQp4RqVfa76g7Xljg_pZ-XrlMHLmvCvG_ZWPibT0Rc9yD6qAPa0ORg2ciXmjp-okUo"
+                    alt="제주시 관덕정 및 칠성로 원도심권 상권 전경"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute bottom-2.5 left-2.5 rounded bg-[#263142]/85 px-2.5 py-1 text-xs text-[#ebf1ff] backdrop-blur-sm">
+                    관덕정로 일원 격자 분석 완료
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col justify-between rounded-2xl bg-[#f0f3ff] p-6 md:col-span-6 sm:p-8">
+                <div className="flex flex-col gap-2">
+                  <span className="w-fit rounded bg-[#265cb1] px-2 py-0.5 text-xs font-semibold text-white">공간 빅데이터 결합</span>
+                  <h3 className="text-xl font-bold text-[#111c2c]">서귀포시 매일올레·이중섭거리권</h3>
+                  <p className="text-xs leading-relaxed text-[#424751]">
+                    서귀포 관광 야시장과 이중섭 문화거리가 공존하는 남부 핵심 상권. 토요일 야간 식음료 지출과 일요일 오전 특산품 매입이 상권 매출의 80% 이상을 차지합니다.
+                  </p>
+                </div>
+                <div className="relative mt-5 h-48 overflow-hidden rounded-xl shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRmhDDXUxuEM1mrq9JkdN2i75twom_dYpV46meXVDs1XhcL3vbplFvFYpANSssKwuzcfZ13vUs65Tl_q3qD-NQGhwx8Z0-Fjxg4u-JSdiJ2b7-HraUy1V4Vc3n5kmqtg9-76cfhfytvyuhIU8oWZ6sbBhpFq_oV_zqHeCzLJfcggOOQEe4u5vA9XdKM2BtopUN3JwFNCUZT8je5WYr7e6hpGSrcGTPnz3G7HvZ0S8R"
+                    alt="서귀포시 매일올레시장 및 이중섭거리 상권 전경"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute bottom-2.5 left-2.5 rounded bg-[#263142]/85 px-2.5 py-1 text-xs text-[#ebf1ff] backdrop-blur-sm">
+                    중정로 및 이중섭로 격자 분석 완료
+                  </div>
+                </div>
+              </div>
+            </section>
             <section className="mb-14 flex flex-col gap-4">
               <div className="flex flex-col">
                 <span className="text-xs font-bold tracking-wider text-[#005bac]">DATA QUALITY &amp; GOVERNANCE</span>
