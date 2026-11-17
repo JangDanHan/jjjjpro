@@ -54,6 +54,13 @@ const sampleFilters: Filters = {
 }
 const sampleQuestion = '2017년 4월 제주시 구도심 내국인 비교'
 
+const quickExamples = [
+  { label: '17년 11월 제주시 내국인 (+288)', question: '17년 11월 제주 구도심 내국인 토·일 비교해줘' },
+  { label: '그럼 서귀포는? (+998)', question: '그럼 서귀포는?' },
+  { label: '그 차이가 매달 비슷했어?', question: '그 차이가 매달 비슷했어?' },
+  { label: '어느 달까지 볼 수 있어?', question: '어느 달까지 볼 수 있어?' },
+]
+
 type JejuDatasetPayload = {
   datasetId: number
   coverage: { startMonth: string; endMonth: string }
@@ -220,6 +227,11 @@ export function WeekendDashboard({
     await compare(sampleFilters, sampleQuestion)
   }
 
+  async function runQuickQuery(text: string) {
+    setQuestion(text)
+    await compare(filters, text)
+  }
+
   async function signOut() {
     setIsSigningOut(true)
     await authClient.signOut()
@@ -266,14 +278,14 @@ export function WeekendDashboard({
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1160px] px-5 pb-14 pt-8 sm:px-8 sm:pt-12">
+      <main className="mx-auto max-w-[1160px] px-4 pb-14 pt-6 sm:px-8 sm:pt-12">
         <section className="mb-8 grid items-end gap-6 md:grid-cols-[1fr_auto]">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#dce9e5] bg-white px-3 py-1.5 text-[11px] font-bold tracking-[0.12em] text-[#55756e]">
               <Sparkles aria-hidden="true" className="size-3.5 text-[#0e8a7d]" />
               JEJU DATAHUB 608
             </div>
-            <h1 className="max-w-[700px] text-[32px] font-extrabold leading-[1.18] tracking-[-0.055em] text-[#14273a] sm:text-[43px]">
+            <h1 className="max-w-[700px] text-[28px] font-extrabold leading-[1.2] tracking-[-0.05em] text-[#14273a] sm:text-[43px]">
               주말의 소비 차이를<br className="hidden sm:block" /> 한눈에 비교해요
             </h1>
             <p className="mt-4 max-w-[620px] text-[15px] leading-7 text-[#647786] sm:text-base">
@@ -309,9 +321,20 @@ export function WeekendDashboard({
                 maxLength={500}
                 className="min-h-[58px] w-full resize-y border-0 bg-transparent px-2 py-2 text-[15px] leading-6 text-[#263d4f] outline-none placeholder:text-[#95a2aa] focus:ring-0"
               />
+
+              {previousFilters && (
+                <div className="mb-2 flex flex-wrap items-center gap-1.5 rounded-xl border border-[#d5e7e1] bg-[#f2f8f6] px-3 py-2 text-xs text-[#2e5950]">
+                  <span className="font-bold text-[#107e74]">직전 조건 유지:</span>
+                  <span className="font-semibold text-[#183a33]">
+                    {previousFilters.districtType} 구도심 · {previousFilters.userType} · {monthLabel(previousFilters.startMonth)}{previousFilters.startMonth !== previousFilters.endMonth ? ` — ${monthLabel(previousFilters.endMonth)}` : ''}
+                  </span>
+                  <span className="text-[11px] text-[#5e7e77]">(후속 질문 “그럼 서귀포는?”, “그 차이는?” 질문 시 관광객·기간 자동 승계)</span>
+                </div>
+              )}
+
               <div className="flex flex-col gap-2 border-t border-[#edf0ee] pt-3 sm:flex-row sm:items-center sm:justify-between">
                 <span className="px-2 text-xs leading-5 text-[#83919a]">지역·관광객·월을 포함해 자연스럽게 질문해 보세요.</span>
-                <button type="submit" disabled={isLoading} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#087f77] px-5 text-sm font-bold text-white transition hover:bg-[#076c66] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#d8efea] disabled:cursor-wait disabled:opacity-70">
+                <button type="submit" disabled={isLoading} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#087f77] px-5 text-sm font-bold text-white transition hover:bg-[#076c66] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#d8efea] disabled:cursor-wait disabled:opacity-70 sm:w-auto">
                   {isLoading ? <RefreshCw aria-hidden="true" className="size-4 animate-spin" /> : <ArrowRight aria-hidden="true" className="size-4" />}
                   {isLoading ? '비교 중…' : '비교 결과 보기'}
                 </button>
@@ -345,18 +368,30 @@ export function WeekendDashboard({
                 </label>
               </div>
               <div className="mt-3 flex justify-end">
-                <button type="button" onClick={() => void compare(filters, '')} disabled={isLoading} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[#d8e8e2] bg-[#f6faf8] px-4 text-sm font-bold text-[#41645d] transition hover:border-[#a6c8bd] hover:bg-[#eff7f3] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#e8f4f0] disabled:cursor-wait disabled:opacity-60">
+                <button type="button" onClick={() => void compare(filters, '')} disabled={isLoading} className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-[#d8e8e2] bg-[#f6faf8] px-4 text-sm font-bold text-[#41645d] transition hover:border-[#a6c8bd] hover:bg-[#eff7f3] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#e8f4f0] disabled:cursor-wait disabled:opacity-60 sm:w-auto">
                   직접 선택으로 비교
                 </button>
               </div>
             </div>
           </form>
 
-          <div className="mt-5 flex flex-col gap-2 border-t border-[#edf0ee] pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <span className="text-xs font-semibold text-[#82909a]">빠른 예시</span>
-            <button type="button" onClick={() => void runExample()} disabled={isLoading} className="group inline-flex items-center gap-2 self-start rounded-full border border-[#d8e8e2] bg-[#f6faf8] px-3.5 py-2 text-left text-xs font-semibold text-[#41645d] transition hover:border-[#a6c8bd] hover:bg-[#eff7f3] disabled:opacity-60 sm:self-auto">
-              <Sparkles aria-hidden="true" className="size-3.5 text-[#0b8a7f]" /> 2017년 4월 제주시 구도심 내국인 비교 <ArrowRight aria-hidden="true" className="size-3.5 transition group-hover:translate-x-0.5" />
-            </button>
+          <div className="mt-5 flex flex-col gap-2.5 border-t border-[#edf0ee] pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <span className="shrink-0 text-xs font-semibold text-[#82909a]">빠른 예시 질문</span>
+            <div className="flex flex-wrap items-center gap-2">
+              {quickExamples.map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => void runQuickQuery(item.question)}
+                  disabled={isLoading}
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-[#d8e8e2] bg-[#f6faf8] px-3.5 py-2 text-left text-xs font-semibold text-[#41645d] transition hover:border-[#a6c8bd] hover:bg-[#eff7f3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#137f78] disabled:opacity-60"
+                >
+                  <Sparkles aria-hidden="true" className="size-3 text-[#0b8a7f]" />
+                  <span>{item.label}</span>
+                  <ArrowRight aria-hidden="true" className="size-3 transition group-hover:translate-x-0.5" />
+                </button>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -422,16 +457,52 @@ export function WeekendDashboard({
                 </div>
               ) : (
                 <div className="mt-6 rounded-2xl border border-[#e7ece9] p-4 sm:p-5">
-                  <div className="mb-4 flex items-center justify-between gap-3"><div><h4 className="text-sm font-bold">요일별 결제 건수</h4><p className="mt-1 text-xs text-[#83919a]">기준선 0 · 선택 범위의 유효 월 합계</p></div><span className="text-[11px] font-semibold text-[#82909a]">단위: 건</span></div>
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div>
+                      <h4 className="text-sm font-bold">요일별 결제 건수</h4>
+                      <p className="mt-1 text-xs text-[#83919a]">기준선 0 · 선택 범위의 유효 월 합계</p>
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#82909a]">단위: 건</span>
+                  </div>
                   <div className="flex flex-col gap-4">
-                    <div className="grid grid-cols-[60px_minmax(0,1fr)_auto] items-center gap-3 sm:grid-cols-[76px_minmax(0,1fr)_auto]">
+                    <div className="grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-2 sm:grid-cols-[76px_minmax(0,1fr)_auto] sm:gap-3">
                       <span className="text-xs font-bold text-[#287e75]">토요일</span>
-                      <div className="flex min-w-0 items-center gap-2"><span className="text-[10px] font-medium text-[#9aa7ad]">0</span><div role="img" aria-label={`토요일 ${number(result.saturdayTotal)}건`} className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#edf2ef]"><div className="h-full rounded-full bg-[#11998e] transition-[width]" style={{ width: `${Math.max(2, (result.saturdayTotal / resultBarMax) * 100)}%` }} /></div></div>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="text-[10px] font-medium text-[#9aa7ad]">0</span>
+                        <div
+                          role="progressbar"
+                          aria-label={`토요일 결제 건수 ${number(result.saturdayTotal)}건`}
+                          aria-valuenow={result.saturdayTotal}
+                          aria-valuemin={0}
+                          aria-valuemax={resultBarMax}
+                          className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#edf2ef]"
+                        >
+                          <div
+                            className="h-full rounded-full bg-[#11998e] transition-[width] duration-300"
+                            style={{ width: `${Math.max(2, (result.saturdayTotal / resultBarMax) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
                       <strong className="text-sm font-bold tabular-nums text-[#31594f]">{number(result.saturdayTotal)}</strong>
                     </div>
-                    <div className="grid grid-cols-[60px_minmax(0,1fr)_auto] items-center gap-3 sm:grid-cols-[76px_minmax(0,1fr)_auto]">
+                    <div className="grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-2 sm:grid-cols-[76px_minmax(0,1fr)_auto] sm:gap-3">
                       <span className="text-xs font-bold text-[#3c68a3]">일요일</span>
-                      <div className="flex min-w-0 items-center gap-2"><span className="text-[10px] font-medium text-[#9aa7ad]">0</span><div role="img" aria-label={`일요일 ${number(result.sundayTotal)}건`} className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#edf2f8]"><div className="h-full rounded-full bg-[#4d7fca] transition-[width]" style={{ width: `${Math.max(2, (result.sundayTotal / resultBarMax) * 100)}%` }} /></div></div>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className="text-[10px] font-medium text-[#9aa7ad]">0</span>
+                        <div
+                          role="progressbar"
+                          aria-label={`일요일 결제 건수 ${number(result.sundayTotal)}건`}
+                          aria-valuenow={result.sundayTotal}
+                          aria-valuemin={0}
+                          aria-valuemax={resultBarMax}
+                          className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#edf2f8]"
+                        >
+                          <div
+                            className="h-full rounded-full bg-[#4d7fca] transition-[width] duration-300"
+                            style={{ width: `${Math.max(2, (result.sundayTotal / resultBarMax) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
                       <strong className="text-sm font-bold tabular-nums text-[#39577e]">{number(result.sundayTotal)}</strong>
                     </div>
                   </div>
@@ -444,10 +515,28 @@ export function WeekendDashboard({
                   {result.latestCompleteMonth && <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f3f6f5] px-3 py-1.5 text-[11px] font-semibold text-[#60757d]"><Clock3 aria-hidden="true" className="size-3.5" /> 최신 비교 가능 {monthLabel(result.latestCompleteMonth)}</span>}
                 </div>
                 {result.rows.length > 0 ? (
-                  <div className="overflow-hidden rounded-2xl border border-[#e7ece9]">
-                    <table className="w-full border-collapse text-left text-sm">
-                      <thead className="bg-[#f7f9f8] text-xs font-semibold text-[#71818c]"><tr><th scope="col" className="px-4 py-3">월</th><th scope="col" className="px-3 py-3 text-right">토요일</th><th scope="col" className="px-3 py-3 text-right">일요일</th><th scope="col" className="px-4 py-3 text-right">차이</th></tr></thead>
-                      <tbody>{result.rows.map((row) => <tr key={row.month} className="border-t border-[#edf0ee]"><th scope="row" className="px-4 py-3.5 font-bold text-[#405568]">{monthLabel(row.month)}</th><td className="px-3 py-3.5 text-right font-semibold tabular-nums text-[#287e75]">{number(row.saturday)}</td><td className="px-3 py-3.5 text-right font-semibold tabular-nums text-[#3c68a3]">{number(row.sunday)}</td><td className={`px-4 py-3.5 text-right font-bold tabular-nums ${row.difference > 0 ? 'text-[#168279]' : row.difference < 0 ? 'text-[#496fa5]' : 'text-[#71818c]'}`}>{row.difference > 0 ? '+' : ''}{number(row.difference)}</td></tr>)}</tbody>
+                  <div className="overflow-x-auto rounded-2xl border border-[#e7ece9]">
+                    <table className="w-full min-w-[290px] border-collapse text-left text-sm">
+                      <thead className="bg-[#f7f9f8] text-xs font-semibold text-[#71818c]">
+                        <tr>
+                          <th scope="col" className="px-3 py-3 sm:px-4">월</th>
+                          <th scope="col" className="px-2.5 py-3 text-right sm:px-3">토요일</th>
+                          <th scope="col" className="px-2.5 py-3 text-right sm:px-3">일요일</th>
+                          <th scope="col" className="px-3 py-3 text-right sm:px-4">차이</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {result.rows.map((row) => (
+                          <tr key={row.month} className="border-t border-[#edf0ee] hover:bg-[#fafbfb]">
+                            <th scope="row" className="whitespace-nowrap px-3 py-3.5 font-bold text-[#405568] sm:px-4">{monthLabel(row.month)}</th>
+                            <td className="px-2.5 py-3.5 text-right font-semibold tabular-nums text-[#287e75] sm:px-3">{number(row.saturday)}</td>
+                            <td className="px-2.5 py-3.5 text-right font-semibold tabular-nums text-[#3c68a3] sm:px-3">{number(row.sunday)}</td>
+                            <td className={`px-3 py-3.5 text-right font-bold tabular-nums sm:px-4 ${row.difference > 0 ? 'text-[#168279]' : row.difference < 0 ? 'text-[#496fa5]' : 'text-[#71818c]'}`}>
+                              {row.difference > 0 ? '+' : ''}{number(row.difference)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
                     </table>
                   </div>
                 ) : (
