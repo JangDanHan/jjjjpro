@@ -185,7 +185,8 @@ Vercel Cron을 통한 주기적 자동 갱신을 검증하고, 프로덕션 배�
     - `ADMIN_EMAILS` (관리자 계정 목록)
     - `JEJUDATAHUB_DATASET_URL` & `JEJUDATAHUB_API_KEY` (제주데이터허브 API 연동 정보)
     - `CRON_SECRET` (예약 배치 호출 시크릿)
-- [ ] **Task 4.4: 프로덕션 배포 및 최종 인수 테스트(Acceptance Test)**
+- [x] **Task 4.4: 프로덕션 배포 및 최종 인수 테스트(Acceptance Test)**
+  - Vercel CLI 연결 및 실제 프로덕션 도메인([https://jproject-eight.vercel.app](https://jproject-eight.vercel.app)) 배포 완료.
   - 실제 배포된 도메인에서 PRD 6장에 명시된 8대 확인 조건 전수 실행 및 체크 완료.
 
 #### 4.4 완료 조건 (DoD)
@@ -206,7 +207,7 @@ Vercel Cron을 통한 주기적 자동 갱신을 검증하고, 프로덕션 배�
 | **03** | 390px 모바일 및 데스크톱 가독성 | Sprint 2 | 390px 폭에서 가로 스크롤 없이 모든 텍스트, 막대 차트, 오류 안내가 명확히 가독 가능 | 완료 |
 | **04** | 계정 기능 및 관리자 인가 통제 | Sprint 3 | 일반 계정의 `/admin` 차단, 본인 질문 이력만 `/history`에 노출, 관리자 파일 검증 흐름 정상 동작 | 완료 |
 | **05** | 예약 갱신 및 실패 시 버전 보존 | Sprint 4 | `/api/cron` 자동 갱신 검증, 외부 API 오류 시 기존 활성 DB 버전 및 대시보드 데이터 보존 | 완료 |
-| **06** | 프로덕션 배포 후 실제 환경 검증 | Sprint 4 | 실제 운영 배포 주소에서 기간 질문, 예외 입력, 빠른 예시 검증 완료 | 배포 대기 |
+| **06** | 프로덕션 배포 후 실제 환경 검증 | Sprint 4 | 실제 운영 배포 주소(https://jproject-eight.vercel.app)에서 기간 질문, 예외 입력, 빠른 예시 검증 완료 | 완료 |
 
 ---
 

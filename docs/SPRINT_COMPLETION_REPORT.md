@@ -61,7 +61,11 @@
 - **민감정보 마스킹**:
   - [lib/jeju/safe-errors.ts](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/lib/jeju/safe-errors.ts)를 통해 제주데이터허브 API 프록시 URL, 프로젝트 키, 데이터베이스 패스워드가 에러 메시지나 화면에 노출되지 않도록 `[숨김]` 처리.
 
-### 🟢 Sprint 4: 배치 자동화 & 운영 배포 QA (Automation & Production QA)
+### 🟢 Sprint 4: 배치 자동화 & 운영 배포 QA (Automation & Production QA) - 100% 완료
+- **프로덕션 클라우드 배포 완료**:
+  - Vercel CLI 인증 및 자동 배포 파이프라인 구축 완료.
+  - 프로덕션 실서버 URL: **[https://jproject-eight.vercel.app](https://jproject-eight.vercel.app)**
+  - 실서버 응답 상태 `HTTP 200 OK` 및 15개월 관측 데이터 로딩 확인.
 - **Vercel Cron 자동 갱신 검증**:
   - [vercel.json](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/vercel.json)에 매주 월요일 09:00 UTC 스케줄 정의.
   - [app/api/cron/route.ts](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/app/api/cron/route.ts)에서 `CRON_SECRET` Bearer 토큰 인증 검증 완료 (비인가 호출 시 401 반환).
@@ -69,6 +73,7 @@
 - **빌드 및 타입 무결성 검증**:
   - `pnpm exec tsc --noEmit` 성공 (타입 오류 0건).
   - `package.json` `"type": "module"` 설정으로 모듈 시스템 최적화.
+  - 단위 테스트 총 23개 전수 통과.
 - **DB 스키마 및 마이그레이션**:
   - [lib/db/schema.ts](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/lib/db/schema.ts), [drizzle/0001_initial.sql](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/drizzle/0001_initial.sql), [drizzle/0002_preview_seed.sql](file:///c:/Users/jangd/OneDrive/바탕%20화면/jproject/drizzle/0002_preview_seed.sql) 스키마 정의 완료.
 
