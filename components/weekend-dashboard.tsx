@@ -20,7 +20,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
-import { aggregateObservations, interpretQuestion, validateFilters } from '@/lib/jeju/aggregate'
+import { aggregateObservations, interpretQuestion, resolveIntentComparison, validateFilters } from '@/lib/jeju/aggregate'
 import type { ComparisonResult, DatasetMetadata, Filters, Observation } from '@/lib/jeju/types'
 
 type ComparisonResponse = ComparisonResult & {
@@ -35,6 +35,8 @@ type Props = {
   initialQuestion?: string
   initialResult?: ComparisonResponse | null
   initialError?: string | null
+  initialObservations?: Observation[]
+  initialDataset?: DatasetMetadata
 }
 
 const initialSelection: Filters = {
@@ -120,6 +122,8 @@ export function WeekendDashboard({
   initialQuestion = '',
   initialResult = null,
   initialError = null,
+  initialObservations,
+  initialDataset,
 }: Props) {
   const router = useRouter()
   const [filters, setFilters] = useState<Filters>(initialFilters ?? initialSelection)
@@ -136,58 +140,58 @@ export function WeekendDashboard({
     setIsLoading(true)
     setError(null)
     try {
-      const dataset = await readAttachedDataset()
-      const interpreted = interpretQuestion(nextQuestion, validateFilters(nextFilters), previousFilters)
-      let comparison = aggregateObservations(dataset.observations, interpreted.filters)
+      // 1. 활성 DB 버전 기반의 실시간 API 비교 (로그인 사용자는 검색 이력 자동 적재)
+      const response = await fetch('/api/compare', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ question: nextQuestion, filters: nextFilters, previousFilters }),
+      })
 
-      if (interpreted.intent === 'availability' && comparison.latestCompleteMonth) {
-        const latestMonth = comparison.latestCompleteMonth
-        comparison = aggregateObservations(dataset.observations, {
-          ...comparison.filters,
-          startMonth: latestMonth,
-          endMonth: latestMonth,
-        })
-        comparison = {
-          ...comparison,
-          summary: `${latestMonth.replace('-', '년 ')}월까지 비교할 수 있어요.`,
+      if (response.ok) {
+        const nextResult = (await response.json()) as ComparisonResponse
+        setResult(nextResult)
+        setFilters(nextResult.filters)
+        if (nextResult.status === 'success') {
+          setPreviousFilters(nextResult.filters)
         }
-      } else if (interpreted.intent === 'monthly' && comparison.rows.length > 0) {
-        const sortedByDifference = [...comparison.rows].sort((left, right) => left.difference - right.difference)
-        const least = sortedByDifference[0]
-        const most = sortedByDifference[sortedByDifference.length - 1]
-        const spread = most.difference - least.difference
-        const formatDifference = (difference: number) => `${difference > 0 ? '+' : ''}${difference.toLocaleString('ko-KR')}건`
-        comparison = {
-          ...comparison,
-          summary: comparison.rows.length === 1
-            ? `${least.month.replace('-', '년 ')}월의 차이는 ${formatDifference(least.difference)}이에요. 비교 가능한 달이 한 달뿐이라 월별 유사성은 판단할 수 없어요.`
-            : `가장 작은 차이는 ${least.month.replace('-', '년 ')}월 ${formatDifference(least.difference)}, 가장 큰 차이는 ${most.month.replace('-', '년 ')}월 ${formatDifference(most.difference)}예요. 월별 차이 범위는 ${spread.toLocaleString('ko-KR')}건입니다. 아래 표에서 달마다 확인해 보세요.`,
-        }
+        return
       }
 
-      const nextResult: ComparisonResponse = {
-        ...comparison,
-        intent: interpreted.intent,
-        requestedPeriod: interpreted.requestedPeriod,
-        dataset: dataset.metadata,
+      if (response.status === 422 || response.status === 400) {
+        const errPayload = (await response.json().catch(() => ({}))) as { error?: string }
+        const message = errPayload.error ?? '입력 조건을 확인해 주세요.'
+        setError({ kind: 'invalid', message })
+        setResult(null)
+        return
       }
-      setResult(nextResult)
-      setFilters(nextResult.filters)
-      if (nextResult.status === 'success') {
-        setPreviousFilters(nextResult.filters)
-        if (user) {
-          void fetch('/api/compare', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ question: nextQuestion, filters: nextResult.filters, previousFilters }),
-          }).catch(() => undefined)
+
+      throw new Error('API 서버 연결이 원활하지 않아 로컬 데이터셋으로 전환합니다.')
+    } catch {
+      // 2. 서버 미연결/오프라인 환경 시 로컬 데이터셋 폴백 집계
+      try {
+        const dataset = initialObservations && initialDataset
+          ? { observations: initialObservations, metadata: initialDataset }
+          : await readAttachedDataset()
+        const interpreted = interpretQuestion(nextQuestion, validateFilters(nextFilters), previousFilters)
+        const comparison = resolveIntentComparison(dataset.observations, interpreted)
+
+        const nextResult: ComparisonResponse = {
+          ...comparison,
+          intent: interpreted.intent,
+          requestedPeriod: interpreted.requestedPeriod,
+          dataset: dataset.metadata,
         }
+        setResult(nextResult)
+        setFilters(nextResult.filters)
+        if (nextResult.status === 'success') {
+          setPreviousFilters(nextResult.filters)
+        }
+      } catch (cause) {
+        const message = cause instanceof Error ? cause.message : '비교 결과를 불러오지 못했어요.'
+        const kind = /선택해 주세요|입력해 주세요|늦을 수|조회 기간은|형식을 확인/.test(message) ? 'invalid' : 'server'
+        setError({ kind, message })
+        setResult(null)
       }
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : '비교 결과를 불러오지 못했어요.'
-      const kind = /선택해 주세요|입력해 주세요|늦을 수|조회 기간은|형식을 확인/.test(message) ? 'invalid' : 'server'
-      setError({ kind, message })
-      setResult(null)
     } finally {
       setIsLoading(false)
     }

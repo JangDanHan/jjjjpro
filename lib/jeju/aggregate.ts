@@ -290,3 +290,41 @@ export function interpretQuestion(
 
   return { filters: validateFilters(filters), intent, requestedPeriod }
 }
+
+export function resolveIntentComparison(
+  observations: Observation[],
+  interpreted: {
+    filters: Filters
+    intent: QuestionIntent
+    requestedPeriod?: { startMonth: string; endMonth: string }
+  },
+): ComparisonResult {
+  let comparison = aggregateObservations(observations, interpreted.filters)
+
+  if (interpreted.intent === 'availability' && comparison.latestCompleteMonth) {
+    const latestMonth = comparison.latestCompleteMonth
+    comparison = aggregateObservations(observations, {
+      ...comparison.filters,
+      startMonth: latestMonth,
+      endMonth: latestMonth,
+    })
+    comparison = {
+      ...comparison,
+      summary: `${latestMonth.replace('-', '년 ')}월까지 비교할 수 있어요.`,
+    }
+  } else if (interpreted.intent === 'monthly' && comparison.rows.length > 0) {
+    const sortedByDifference = [...comparison.rows].sort((left, right) => left.difference - right.difference)
+    const least = sortedByDifference[0]
+    const most = sortedByDifference[sortedByDifference.length - 1]
+    const spread = most.difference - least.difference
+    const formatDifference = (difference: number) => `${difference > 0 ? '+' : ''}${difference.toLocaleString('ko-KR')}건`
+    comparison = {
+      ...comparison,
+      summary: comparison.rows.length === 1
+        ? `${least.month.replace('-', '년 ')}월의 차이는 ${formatDifference(least.difference)}이에요. 비교 가능한 달이 한 달뿐이라 월별 유사성은 판단할 수 없어요.`
+        : `가장 작은 차이는 ${least.month.replace('-', '년 ')}월 ${formatDifference(least.difference)}, 가장 큰 차이는 ${most.month.replace('-', '년 ')}월 ${formatDifference(most.difference)}예요. 월별 차이 범위는 ${spread.toLocaleString('ko-KR')}건입니다. 아래 표에서 달마다 확인해 보세요.`,
+    }
+  }
+
+  return comparison
+}

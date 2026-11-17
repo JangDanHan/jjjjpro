@@ -5,8 +5,8 @@ import { auth } from '@/lib/auth'
 import { isAdminEmail } from '@/lib/admin'
 import { db } from '@/lib/db'
 import { queryHistory } from '@/lib/db/schema'
-import { aggregateObservations, validateFilters } from '@/lib/jeju/aggregate'
-import { previewMetadata, previewObservations } from '@/lib/jeju/preview-data'
+import { aggregateObservations, interpretQuestion, resolveIntentComparison, validateFilters } from '@/lib/jeju/aggregate'
+import { readDataset } from '@/lib/jeju/repository'
 import type { Filters } from '@/lib/jeju/types'
 
 const defaultFilters: Filters = {
@@ -30,6 +30,8 @@ export default async function Page({ searchParams }: PageProps) {
     ? { id: session.user.id, name: session.user.name, email: session.user.email }
     : null
 
+  const { observations, metadata } = await readDataset()
+
   let initialFilters = defaultFilters
   let initialQuestion = ''
   let initialResult = null
@@ -51,10 +53,13 @@ export default async function Page({ searchParams }: PageProps) {
         endMonth: historyItem.endMonth,
       })
       initialQuestion = historyItem.question
+      const interpreted = interpretQuestion(initialQuestion, initialFilters, null)
+      const comparison = resolveIntentComparison(observations, interpreted)
       initialResult = {
-        ...aggregateObservations(previewObservations, initialFilters),
-        intent: 'compare' as const,
-        dataset: previewMetadata,
+        ...comparison,
+        intent: interpreted.intent,
+        requestedPeriod: interpreted.requestedPeriod,
+        dataset: metadata,
       }
     } else {
       initialError = '이 질문 이력을 찾을 수 없어요.'
@@ -63,9 +68,9 @@ export default async function Page({ searchParams }: PageProps) {
     initialError = '질문 이력을 다시 보려면 로그인해 주세요.'
   } else {
     initialResult = {
-      ...aggregateObservations(previewObservations, initialFilters),
+      ...aggregateObservations(observations, initialFilters),
       intent: 'compare' as const,
-      dataset: previewMetadata,
+      dataset: metadata,
     }
   }
 
@@ -77,6 +82,8 @@ export default async function Page({ searchParams }: PageProps) {
       initialQuestion={initialQuestion}
       initialResult={initialResult}
       initialError={initialError}
+      initialObservations={observations}
+      initialDataset={metadata}
     />
   )
 }

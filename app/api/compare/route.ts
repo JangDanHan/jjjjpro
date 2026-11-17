@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { queryHistory } from '@/lib/db/schema'
-import { aggregateObservations, interpretQuestion, validateFilters } from '@/lib/jeju/aggregate'
+import { aggregateObservations, interpretQuestion, resolveIntentComparison, validateFilters } from '@/lib/jeju/aggregate'
 import { readDataset } from '@/lib/jeju/repository'
 import type { Filters } from '@/lib/jeju/types'
 import { hasSameOrigin } from '@/lib/security'
@@ -20,31 +20,8 @@ export async function POST(request: Request) {
     const previous = body.previousFilters ? validateFilters(body.previousFilters) : null
     const { observations, metadata } = await readDataset()
     const interpreted = interpretQuestion(question, selected, previous)
-    let filters = interpreted.filters
-    let result = aggregateObservations(observations, filters)
-
-    if (interpreted.intent === 'availability' && result.latestCompleteMonth) {
-      filters = { ...filters, startMonth: result.latestCompleteMonth, endMonth: result.latestCompleteMonth }
-      result = aggregateObservations(observations, filters)
-      result = {
-        ...result,
-        summary: result.latestCompleteMonth
-          ? `${result.latestCompleteMonth.replace('-', '년 ')}월까지 비교할 수 있어요.`
-          : result.summary,
-      }
-    } else if (interpreted.intent === 'monthly' && result.rows.length > 0) {
-      const sortedByDifference = [...result.rows].sort((left, right) => left.difference - right.difference)
-      const least = sortedByDifference[0]
-      const most = sortedByDifference[sortedByDifference.length - 1]
-      const spread = most.difference - least.difference
-      const formatDifference = (difference: number) => `${difference > 0 ? '+' : ''}${difference.toLocaleString('ko-KR')}건`
-      result = {
-        ...result,
-        summary: result.rows.length === 1
-          ? `${least.month.replace('-', '년 ')}월의 차이는 ${formatDifference(least.difference)}이에요. 비교 가능한 달이 한 달뿐이라 월별 유사성은 판단할 수 없어요.`
-          : `가장 작은 차이는 ${least.month.replace('-', '년 ')}월 ${formatDifference(least.difference)}, 가장 큰 차이는 ${most.month.replace('-', '년 ')}월 ${formatDifference(most.difference)}예요. 월별 차이 범위는 ${spread.toLocaleString('ko-KR')}건입니다. 아래 표에서 달마다 확인해 보세요.`,
-      }
-    }
+    const result = resolveIntentComparison(observations, interpreted)
+    const filters = result.filters
 
     const session = await auth.api.getSession({ headers: request.headers })
     if (session?.user && !hasSameOrigin(request)) {
