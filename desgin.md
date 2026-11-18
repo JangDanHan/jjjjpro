@@ -1,437 +1,195 @@
-# 제주 주말소비 분석 포털 3대 핵심 화면 통합 디자인 명세서 (.md)
+# DESIGN.md — 제주머니 (Jeju Money) 통합 디자인 시스템
 
-> **프로젝트명**: 제주 구도심 주말소비 정밀 분석 포털 (Jeju Weekend Pulse Portal)  
-> **주관 기관**: (재)제주테크노파크(JTP) 디지털융합센터 빅데이터연구팀 & 제주데이터허브  
-> **기준 원천 데이터**: 제주데이터허브 제608호 (제주도 구도심 상권 주말 소비 카드 트래픽 정밀 집계, 2016.09 ~ 2017.11 총 120행 100% 매칭 검증)  
-> **적용 디자인 시스템**: `Jeju TP Insight Public Portal` (디자인 시스템 ID: DESIGN_SYSTEM_2)  
-> **문서 버전**: v2.0 (화면 3종 UI 컴포넌트·데이터 스키마·코드 구조 통합판)  
+> **프로젝트명**: 제주머니 (Jeju Money) — 제주 구도심 주말 카드소비 비교 포털  
+> **기준 화면 세트**:
+> 1. `제주머니 - 시작 화면 (간결형)` (화면 1)
+> 2. `제주머니 - 주말 소비 비교 (처음 진입 상태)` (화면 2)
+> 3. `제주머니 - 주말 소비 비교 (결과 화면)` (화면 3)  
+> **타깃 사용자**: 제주도 도민, 제주시·서귀포시 구도심 소상공인, 상인회 실무자  
+> **서비스 핵심 목적**: 복잡한 공공 빅데이터(제주데이터허브 제608호)를 자연어 질문 및 손쉬운 조건 선택을 통해 직관적으로 비교하고 해석할 수 있는 시민·도민 체감형 데이터 비교 서비스
 
 ---
 
-## Ⅰ. 디자인 시스템 및 공통 디자인 토큰 (Design Tokens)
+## 1. 디자인 철학 및 기본 원칙 (Design Principles)
 
-### 1.1 글로벌 컬러 팔레트 (Color Palette)
+1. **간결성과 직관성 (Radical Simplicity)**
+   - 첫 방문자라도 설명서 없이 3초 만에 무엇을 하는 서비스인지 직관적으로 이해할 수 있도록 불필요한 장식, 중복 카드, 복잡한 통계 용어를 배제합니다.
+   - 복잡한 회원가입, 로그인, 계정 관리 메뉴를 일체 두지 않고 비회원 누구나 즉시 100% 무료로 탐색할 수 있습니다.
+   - 정보의 흐름은 일관되게 **[상단 질문/조건 입력] → [중앙 직관적 결론] → [2열 수치 및 0 기준 막대 비교] → [월별 상세 표] → [접이식 계산 근거]** 순서로 전개됩니다.
 
-| 구분 | 토큰명 | Hex Code | 용도 및 의미 |
+2. **제주의 감성과 공공의 신뢰감 (Jeju Civic & Calm)**
+   - 제주 바다의 깊고 맑은 블루(`primary-blue: #005BAC`)와 상쾌한 청록색(`data-sat: #0D9488`)을 주조색으로 삼아 신뢰감을 형성합니다.
+   - 배경에 낮은 한라산 능선과 완만한 바다 곡선 실루엣을 옅게 배치하되, 텍스트나 핵심 UI와 절대 겹치지 않게 하여 시각적 노이즈를 방지합니다.
+
+3. **정직하고 왜곡 없는 데이터 시각화 (Zero-baseline & Fairness)**
+   - 결제 건수 비교 시 시각적 착시를 유발하는 축 자르기나 과장된 비율 차트를 지양하고, 반드시 **0건을 기준으로 하는 동일 눈금의 가로 막대 그래프**를 제공합니다.
+   - 토요일과 일요일의 공정한 비교를 위해 같은 주차의 토·일을 1:1로 짝지어 집계하며, 공식 수집 기간(2016년 9월 ~ 2017년 11월) 외의 데이터는 왜곡 방지를 위해 안내 배너와 함께 제외 처리합니다.
+
+4. **접근성 및 고령층·소상공인 친화적 터치 (Accessibility)**
+   - 본문 15~16px, 제목 24~40px의 선명하고 굵은 한글 타이포그래피.
+   - 모든 주요 버튼과 인터랙션 영역은 최소 48px ~ 56px의 쾌적한 터치 높이를 보장합니다.
+
+---
+
+## 2. 디자인 토큰 및 컬러 시스템 (Color Palette)
+
+### 2.1 주조색 및 데이터 전용 색상
+| 토큰명 | Hex 코드 | Tailwind 클래스 대응 | 용도 및 가이드라인 |
 | :--- | :--- | :--- | :--- |
-| **Primary Brand** | Primary Blue | `#005BAC` | 제주테크노파크 대표 시그니처 블루, 핵심 CTA 버튼, GNB 활성 탭, 헤드라인 하이라이트 |
-| **Primary Dark** | Brand Navy | `#0A1E3F` | 대헤드라인, 어두운 배너 배경, 시스템 상태바 배경, 높은 가독성 텍스트 |
-| **Hover State** | Primary Hover | `#004380` | 주요 버튼 및 상호작용 요소 마우스 호버 상태 |
-| **토요일 (Sat)** | Teal-600 | `#0D9488` | 토요일 결제 건수, 토요일 점유율 막대 그래프, 토요일 우세 뱃지 |
-| **토요일 배경** | Teal-50 | `#F0FDFA` | 토요일 통계 카드 배경, 테두리 (`#CCFBF1`) |
-| **일요일 (Sun)** | Blue-600 | `#2563EB` | 일요일 결제 건수, 일요일 점유율 막대 그래프, 일요일 우세 뱃지 |
-| **일요일 배경** | Blue-50 | `#EFF6FF` | 일요일 통계 카드 배경, 테두리 (`#DBEAFE`) |
-| **격차 우세 지표** | Emerald-600 | `#059669` | 순 차이(+288건, +2.18%) 등 긍정적 지표 강조, 배경 (`#ECFDF5`) |
-| **표면 배경 (Surface)**| Slate-50 | `#F8F9FA` | 전체 페이지 기본 본문 배경 (`bg-[#F8F9FA]`) |
-| **카드 표면 (Card)** | Pure White | `#FFFFFF` | 콘텐츠 패널, 데이터 카드, 팝오버 기본 배경 |
-| **보더 라인 (Border)**| Slate-200 | `#E2E8F0` | 공공 포털 규격의 단정한 카드 및 테이블 구분선 |
+| `primary-blue` | `#005BAC` | `text-[#005BAC]`, `bg-[#005BAC]` | 브랜드 메인 블루, 주요 CTA 버튼, 링 포커스 |
+| `primary-hover`| `#004785` | `hover:bg-[#004785]` | 메인 버튼 호버 상태 |
+| `primary-dark` | `#0F172A` | `text-[#0F172A]` | 최상위 헤드라인, 핵심 결론 텍스트 (`slate-900`) |
+| `data-saturday`| `#0D9488` | `text-[#0D9488]`, `bg-[#0D9488]` | **토요일 전용 데이터 컬러** (청록 / Teal 600) |
+| `data-sunday`  | `#2563EB` | `text-[#2563EB]`, `bg-[#2563EB]` | **일요일 전용 데이터 컬러** (블루 / Blue 600) |
+| `accent-diff`  | `#059669` | `bg-emerald-100`, `text-emerald-800` | 월별 표 내 차이 우세 표시 뱃지 |
+| `notice-amber` | `#D97706` | `bg-amber-50`, `border-amber-200` | 기간 보정 안내 배너 및 알림 칩 |
 
-### 1.2 타이포그래피 규칙 (Typography System)
-- **Primary Font**: `Public Sans`, `Pretendard`, `Noto Sans KR`, `system-ui, -apple-system, sans-serif`
-- **숫자 가독성 원칙**: 통계 수치 및 건수 데이터는 **`font-variant-numeric: tabular-nums`** 필수 적용 (열 정렬 오차 방지).
-- **스케일**:
-  - Hero Display Title: `32px ~ 36px` (Bold 700~800, leading 1.3)
-  - Section Headings: `22px ~ 26px` (Bold 700)
-  - Box / Card Titles: `17px ~ 19px` (SemiBold 600)
-  - Large Metrics: `28px ~ 32px` (ExtraBold 800)
-  - Body Text: `14px ~ 15px` (Regular 400 ~ Medium 500, leading 1.6)
-  - Badges / Captions: `11px ~ 12px` (SemiBold 600)
-
-### 1.3 공통 GNB (Global Navigation Bar) 규격
-```html
-<header class="w-full bg-white border-b border-slate-200 sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between">
-    <!-- 브랜드 로고 -->
-    <div class="flex items-center gap-3">
-      <div class="flex flex-col">
-        <div class="flex items-center gap-2">
-          <span class="font-extrabold text-slate-900 text-lg tracking-tight">(재)제주테크노파크</span>
-          <span class="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">빅데이터 센터</span>
-        </div>
-        <span class="text-xs text-slate-500 font-medium">제주 구도심 주말소비 정밀 분석 포털</span>
-      </div>
-    </div>
-    <!-- 네비게이션 탭 -->
-    <nav class="flex items-center gap-1">
-      <a href="#intro" class="px-4 py-2 text-sm font-semibold text-[#005BAC] border-b-2 border-[#005BAC]">서비스 소개</a>
-      <a href="#console" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900">데이터 분석 콘솔</a>
-      <a href="#report" class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900">상인회 의사결정 보고서 / 이력</a>
-    </nav>
-    <!-- 우측 인증 & 진입 CTA -->
-    <div class="flex items-center gap-3">
-      <span class="inline-flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-200">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        공식 제608호 관측 검증 (2016.09 ~ 2017.11)
-      </span>
-      <button class="px-3.5 py-2 text-xs font-semibold text-white bg-[#005BAC] hover:bg-[#004380] rounded shadow-sm">
-        로그인 / 상인회 인증
-      </button>
-    </div>
-  </div>
-</header>
-```
+### 2.2 배경, 컨테이너 및 경계선
+| 토큰명 | Hex 코드 | Tailwind 클래스 대응 | 용도 및 가이드라인 |
+| :--- | :--- | :--- | :--- |
+| `bg-page` | `#F8F9FA` | `bg-[#F8F9FA]` | 전체 페이지 기본 배경 (부드러운 오프화이트) |
+| `surface-white` | `#FFFFFF` | `bg-white` | 단일 입력 카드, 결과 메인 카드, 헤더/푸터 |
+| `surface-subtle`| `#F1F5F9` | `bg-slate-100` | 미선택 세그먼트 버튼, 테이블 헤더 (`slate-100`) |
+| `border-default`| `#E2E8F0` | `border-slate-200` | 기본 카드 테두리, 구분선 (`slate-200`) |
+| `border-focus`  | `#005BAC` | `focus:border-[#005BAC]` | 입력 필드 활성 테두리 |
 
 ---
 
-## Ⅱ. 화면 1 상세 명세: 서비스 소개 및 퀵 스타트 랜딩페이지 (Landing Screen)
+## 3. 타이포그래피 시스템 (Typography)
 
-> **화면 ID**: `SCREEN_8`  
-> **타이틀**: `제주 주말소비 - 서비스 소개 및 퀵 스타트`  
-> **디바이스**: DESKTOP (1280px Grid 기준)  
-> **핵심 목적**: 소상공인과 상인회 담당자가 별도 가입 절차 없이 1초 만에 서비스 가치를 체감하고 즉시 분석 콘솔로 유입되도록 유도.
+- **기본 글꼴 (Font Family)**: `Noto Sans KR`, `Pretendard`, `-apple-system`, `sans-serif`
+- **숫자 데이터 규칙**: 통계 건수, 표 수치, 날짜 표기에는 반드시 고정폭 숫자 `font-variant-numeric: tabular-nums` (`tabular-nums`) 적용.
 
-### 2.1 화면 레이아웃 구성도
-```
-+-----------------------------------------------------------------------------------+
-| GNB: (재)제주테크노파크 빅데이터 센터 로고 | 3대 메뉴 탭 | 제608호 검증 뱃지 | 상인회 인증 CTA |
-+-----------------------------------------------------------------------------------+
-| [Hero Section]                                                                    |
-|  - 좌측: "데이터로 여는 제주 골목상권의 내일"                                     |
-|          수작업 엑셀 0%, 공문서 인쇄 지원 설명, [데이터 분석 콘솔 바로가기] CTA   |
-|  - 우측: [1초 퀵 비교 체험 위젯] (제주시 구도심/서귀포시 구도심 탭 선택 시 즉시 비교) |
-|          토요일 13,502건 vs 일요일 13,214건 요약 카드 및 점유율 막대 프리뷰        |
-+-----------------------------------------------------------------------------------+
-| [6대 공공 분석 원클릭 서비스 카드 그리드 (3x2)]                                   |
-|  1. 토·일 결제 정밀 비교      2. 자연어 대화형 질의 분석   3. 15개월 월별 추이 리포트 |
-|  4. 공식 제608호 데이터 검증  5. 상인회 회의 안건 표준 서식 6. 공공데이터 표준 API 연동|
-+-----------------------------------------------------------------------------------+
-| [상인회 핵심 혁신 가치 3대 카드 (Core Innovation)]                               |
-|  01. 수작업 엑셀 페어링 ZERO | 02. 확실한 수치 기반 안건 채택 | 03. 맥락 기억 연속 대화|
-+-----------------------------------------------------------------------------------+
-| [전문가용 분석 콘솔 라이브 프리뷰 & 관측 현장 권역 포토맵 2분할]                  |
-|  - 좌측: 실제 질의 엔진 대화창 및 15개월 시계열 차트 목업                          |
-|  - 우측: 제주시 중앙로·칠성로 원도심권 vs 서귀포시 매일올레·이중섭거리권 카드맵    |
-+-----------------------------------------------------------------------------------+
-| [공공데이터 신뢰 거버넌스 4단계 프로세스]                                         |
-|  1. 원천 데이터 수집 -> 2. 2대 권역 지오코딩 -> 3. 1:1 완결 페어링 -> 4. 공문서 도출 |
-+-----------------------------------------------------------------------------------+
-| [상인회 자주 묻는 질문 (FAQ) 아코디언] (비회원 무료 여부, 증빙 효력, 1:1 페어링 원칙) |
-+-----------------------------------------------------------------------------------+
-| [하단 풀위드 다크 네이비 전환 배너] "지금 무료로 데이터 분석 콘솔을 시작하세요"     |
-+-----------------------------------------------------------------------------------+
-| 푸터 (Footer): JTP 공공기관 사업자 정보, 제주벤처마루 주소, 품질인증 및 API 가이드  |
-+-----------------------------------------------------------------------------------+
-```
-
-### 2.2 핵심 UI 컴포넌트 코드 스니펫 (Hero & 퀵 체험 위젯)
-```html
-<section class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-12 gap-8 items-center">
-  <!-- 좌측 히어로 카피 & CTA -->
-  <div class="col-span-7 space-y-6">
-    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F0F3FF] border border-[#D0DDFF] text-xs font-semibold text-[#005BAC]">
-      <span>공공데이터 제608호 공식 연동</span>
-      <span class="text-slate-300">|</span>
-      <span>2016.09 ~ 2017.11 전수 시계열</span>
-      <span class="text-slate-300">|</span>
-      <span>수작업 엑셀 페어링 ZERO</span>
-    </div>
-    <h1 class="text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">
-      <span class="text-[#005BAC] block text-xl font-bold mb-1">제주테크노파크 빅데이터 센터</span>
-      데이터로 여는 제주<br><span class="text-[#005BAC]">골목상권의 내일</span>
-    </h1>
-    <p class="text-slate-600 text-base leading-relaxed max-w-xl">
-      수작업 엑셀 작업 없이 1초 만에 완료되는 토·일 주말 소비 패턴 정밀 검증. 
-      상인회 총회, 지자체 지원사업 공모, 매장 운영시간 개편에 필요한 법적·행정적 정량 근거를 비회원 무료로 즉시 생성하세요.
-    </p>
-    <div class="flex items-center gap-3 pt-2">
-      <a href="#console" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#005BAC] hover:bg-[#004380] text-white font-semibold text-base rounded shadow-sm transition-all">
-        <span>데이터 분석 콘솔 바로가기</span>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-      </a>
-      <button class="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm rounded border border-slate-300 shadow-sm transition-all">
-        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        <span>상인회 3분 요약 매뉴얼 PDF</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- 우측 빠른 상권 비교 체험 위젯 -->
-  <div class="col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-md">
-    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-[#005BAC]"></span>
-        <h3 class="font-bold text-slate-900 text-sm">1초 퀵 비교 체험 위젯</h3>
-      </div>
-      <span class="text-xs text-slate-400">기준: '17년 11월 마감</span>
-    </div>
-    <!-- 권역 선택 탭 -->
-    <div class="grid grid-cols-2 gap-2 mt-4">
-      <button class="py-2 text-xs font-bold rounded bg-[#005BAC] text-white">제주시 구도심 (관덕정/중앙로)</button>
-      <button class="py-2 text-xs font-medium rounded bg-slate-100 text-slate-600 hover:bg-slate-200">서귀포시 구도심 (이중섭/매일올레)</button>
-    </div>
-    <!-- 비교 결과 요약 카드 -->
-    <div class="grid grid-cols-2 gap-3 mt-4">
-      <div class="p-3 bg-[#F0FDFA] rounded border border-[#CCFBF1]">
-        <div class="text-xs font-medium text-[#0D9488]">토요일 (Sat)</div>
-        <div class="text-2xl font-extrabold text-slate-900 tabular-nums">13,502 <span class="text-xs font-normal">건</span></div>
-        <div class="text-xs text-slate-500 mt-1">카드 승인건 (50.5%)</div>
-      </div>
-      <div class="p-3 bg-[#EFF6FF] rounded border border-[#DBEAFE]">
-        <div class="text-xs font-medium text-[#2563EB]">일요일 (Sun)</div>
-        <div class="text-2xl font-extrabold text-slate-900 tabular-nums">13,214 <span class="text-xs font-normal">건</span></div>
-        <div class="text-xs text-slate-500 mt-1">카드 승인건 (49.5%)</div>
-      </div>
-    </div>
-    <!-- 결론 뱃지 & 액션 가이드 -->
-    <div class="mt-4 p-3 bg-slate-50 rounded border border-slate-200 text-xs text-slate-700 leading-relaxed">
-      <div class="flex items-center justify-between mb-1">
-        <span class="font-semibold text-slate-900">제주시 구도심 · 내국인 소비 건수</span>
-        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800">토요일 우세 (+288건)</span>
-      </div>
-      <p class="text-slate-500 text-[11px]">
-        💡 의사결정 팁: 제주시 구도심은 토요일 점심·오후 유입이 일요일 대비 +2.18% 견고합니다. 일요일 조기마감보다는 주말 풀타임 영업 인력 배치가 유리합니다.
-      </p>
-    </div>
-  </div>
-</section>
-```
+| 위계 (Hierarchy) | 데스크톱 규격 | 모바일 규격 | 자간/행간 | 두께 (Weight) | 색상 | 적용 영역 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Hero Title** | 36px ~ 40px | 28px ~ 32px | -0.02em / 1.3 | Bold (700) | `#0F172A` | 시작 화면 메인 헤드라인 |
+| **Section Title** | 24px ~ 28px | 20px ~ 22px | -0.01em / 1.35| Bold (700) | `#0F172A` | 비교 화면 헤딩 ("어떤 주말 소비가...") |
+| **Conclusion H2** | 26px ~ 32px | 22px ~ 24px | -0.02em / 1.3 | Bold (700) | `#0F172A` | 결과 한 줄 결론 ("토요일에 카드...") |
+| **Metric Large** | 36px ~ 42px | 32px ~ 36px | -0.01em / 1.2 | Bold (700) | 토:#0D9488<br>일:#2563EB | 대형 결제 건수 숫자 |
+| **Card Title** | 16px ~ 18px | 15px ~ 16px | normal / 1.4 | SemiBold (600)| `#1E293B` | 카드 소제목, 테이블 제목 |
+| **Body / Input** | 15px ~ 16px | 14px ~ 15px | normal / 1.5 | Regular/Med | `#334155` | 질문창 텍스트, 설명 본문 |
+| **Caption / Meta** | 12px ~ 13px | 11px ~ 12px | normal / 1.4 | Regular (400) | `#64748B` | 자료 기간 안내, 출처, 도움말 |
 
 ---
 
-## Ⅲ. 화면 2 상세 명세: 주말소비 데이터 분석 콘솔 (Console Screen)
+## 4. 화면별 세부 컴포넌트 규격 및 UX 흐름
 
-> **화면 ID**: `SCREEN_6`  
-> **타이틀**: `제주 주말소비 - 데이터 분석 콘솔`  
-> **디바이스**: DESKTOP (1280px Grid 기준)  
-> **핵심 목적**: 소상공인이 자연어 질문 또는 정밀 파라미터 필터를 통해 2016~2017 관측 원천 데이터의 1:1 토·일 결제량과 5개월 시계열 장부를 1초 만에 확인.
-
-### 3.1 화면 레이아웃 구성도
-```
-+-----------------------------------------------------------------------------------+
-| GNB: (재)제주테크노파크 빅데이터 센터 | 데이터 분석 콘솔 (활성 탭) | 인증 상태       |
-+-----------------------------------------------------------------------------------+
-| [상단 시스템 검증 상태 바]                                                       |
-|  - [공식 데이터 608호] 120행 관측 데이터 정합성 검증 완료                         |
-|  - [실시간 규칙 기반 연산] 인메모리 캐시 동기화 완료 (외부 AI 미사용, 데이터 주권) |
-+-----------------------------------------------------------------------------------+
-| [듀얼 인터페이스 패널 (Dual Interface)]                                           |
-|  - 좌측 (7): [자연어 상권 질의 엔진] (한국어 파서 v2.4 탑재)                     |
-|              질문창: "17년 11월 제주 구도심 내국인 토·일 비교해줘" + [비교 결과 보기]|
-|              추천 칩: #17년 11월 제주 내국인  #서귀포시 17년 11월 내국인  #연속 질의|
-|  - 우측 (5): [다차원 정밀 필터]                                                  |
-|              지역: [제주시 구도심] / [서귀포시 구도심]                            |
-|              소비자/카드: [내국인 소비] / [중국인 관광객]                         |
-|              기준월 선택: 2017년 11월 ~ 2017년 11월 + [직접 선택으로 집계 재연산] |
-+-----------------------------------------------------------------------------------+
-| [관측 결과 리포트 요약 (2017년 11월 주말 결제량 정밀 비교)]                        |
-|  - 상단: 핵심 의사결정 인사이트 박스 ("토요일 13,502건 vs 일요일 13,214건, +288건")|
-|  - 3개 메트릭 카드: [토요일 총 결제] vs [일요일 총 결제] vs [순 차이량 (+288건)]  |
-|  - 토요일 vs 일요일 점유율 및 누적 스펙트럼 (0 기준 비례 가로 막대 시각화)         |
-+-----------------------------------------------------------------------------------+
-| [시계열 추세 & 현장 구역 정보 2열 그리드]                                         |
-|  - 좌측 (7): 5개월 시계열 꺾은선 그래프 ('17.07 ~ '17.11 토·일 결제선 추이)       |
-|  - 우측 (5): [관측 현장 구역] 제주시 중앙로·동문시장 권역 포토맵 & 업종 점유 비중 |
-+-----------------------------------------------------------------------------------+
-| [월별 토·일 1:1 페어링 관측 상세 장부 (Data Grid)]                                |
-|  - 관측연월 | 토요일 결제건 | 일요일 결제건 | 순 차이량 | 우세 판정 | 상인회 액션 가이드  |
-|  - 2017.11: 13,502건  | 13,214건  | +288건 (+2.18%) | [토요일 우세] | 피크타임 집중|
-|  - 2017.10: 14,210건  | 13,950건  | +260건 (+1.86%) | [토요일 우세] | 연휴 특수 대응|
-|  - 2017.09: 13,880건  | 13,420건  | +460건 (+3.43%) | [토요일 우세] | 플리마켓 효과|
-|  - 2017.08: 15,120건  | 14,800건  | +320건 (+2.16%) | [토요일 우세] | 성수기 연장영업|
-|  - 2017.07: 13,950건  | 13,670건  | +280건 (+2.05%) | [토요일 우세] | 점심 특선 강화|
-+-----------------------------------------------------------------------------------+
-| [데이터 산출 원칙 및 통계적 무결성 검증 기준 아코디언] (1:1 페어링 원칙 & 보정 안내) |
-+-----------------------------------------------------------------------------------+
-```
-
-### 3.2 핵심 데이터 비교 카드 & 점유율 스펙트럼 스니펫
-```html
-<!-- 메트릭 3종 카드 -->
-<div class="grid grid-cols-3 gap-6 mt-6">
-  <!-- 토요일 카드 -->
-  <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
-    <div class="flex items-center justify-between">
-      <span class="text-sm font-semibold text-slate-500">토요일 결제 총량 (Saturday)</span>
-      <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-[#F0FDFA] text-[#0D9488]">점유율 50.5%</span>
-    </div>
-    <div class="mt-3 flex items-baseline gap-1">
-      <span class="text-4xl font-extrabold text-slate-900 tracking-tight tabular-nums">13,502</span>
-      <span class="text-base font-semibold text-slate-600">건</span>
-    </div>
-    <div class="mt-2 text-xs text-slate-400">11월 토요일 (4회 기준) · 일평균 약 3,375.5건</div>
-  </div>
-
-  <!-- 일요일 카드 -->
-  <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
-    <div class="flex items-center justify-between">
-      <span class="text-sm font-semibold text-slate-500">일요일 결제 총량 (Sunday)</span>
-      <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-[#EFF6FF] text-[#2563EB]">점유율 49.5%</span>
-    </div>
-    <div class="mt-3 flex items-baseline gap-1">
-      <span class="text-4xl font-extrabold text-slate-900 tracking-tight tabular-nums">13,214</span>
-      <span class="text-base font-semibold text-slate-600">건</span>
-    </div>
-    <div class="mt-2 text-xs text-slate-400">11월 일요일 (4회 기준) · 일평균 약 3,303.5건</div>
-  </div>
-
-  <!-- 순 차이량 카드 -->
-  <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
-    <div class="flex items-center justify-between">
-      <span class="text-sm font-semibold text-slate-500">순 차이량 (토요일 - 일요일)</span>
-      <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700">토요일 우세</span>
-    </div>
-    <div class="mt-3 flex items-baseline gap-1">
-      <span class="text-4xl font-extrabold text-[#005BAC] tracking-tight tabular-nums">+288</span>
-      <span class="text-base font-semibold text-slate-600">건 (+2.18%)</span>
-    </div>
-    <div class="mt-2 text-xs text-slate-500">상인회 제안: 토요일 오후 인력 보강 및 재고 사전배치 추천</div>
-  </div>
-</div>
-
-<!-- 0 기준 점유율 스펙트럼 바 -->
-<div class="mt-6 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-  <div class="flex items-center justify-between text-xs font-semibold mb-2">
-    <span class="text-[#0D9488]">■ 토요일: 13,502건 (50.54%)</span>
-    <span class="text-slate-400">총 주말 집계: 26,716건</span>
-    <span class="text-[#2563EB]">일요일: 13,214건 (49.46%) ■</span>
-  </div>
-  <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden flex">
-    <div class="h-full bg-[#0D9488]" style="width: 50.54%"></div>
-    <div class="h-full bg-[#2563EB]" style="width: 49.46%"></div>
-  </div>
-  <div class="flex justify-between items-center text-[11px] text-slate-400 mt-1">
-    <span>0%</span>
-    <span>Δ 1.08%p 차이 (균등 분할 대비 소폭 토요 편중)</span>
-    <span>100%</span>
-  </div>
-</div>
-```
+### 4.1 글로벌 공통 레이아웃 (Global Shell)
+- **최대 본문 너비**: `max-w-[1000px] mx-auto px-4 sm:px-6`
+- **상단 내비게이션 바 (`h-14` ~ `h-16`)**:
+  - 좌측: 제주 바다 웨이브 심벌(24x24px) + **제주머니** 로고 텍스트(18px Bold).
+  - 우측: 시작 화면 바로가기 링크(`처음으로`) 및 공공데이터 외부 링크(`자료 출처` + `open_in_new` 14px).
+  - **금지 항목**: 로그인/회원가입 버튼, 마이페이지/계정 아이콘, 복잡한 서비스 메뉴 탭.
+- **하단 푸터**:
+  - 간결한 텍스트 형태: `제주머니 · 자료 출처 제주데이터허브`
+  - 중앙 또는 좌우 정렬, 12px `slate-500` 색상.
 
 ---
 
-## Ⅳ. 화면 3 상세 명세: 상인회 의사결정 보고서 및 이력 (Report Screen)
-
-> **화면 ID**: `SCREEN_4`  
-> **타이틀**: `제주 주말소비 - 상인회 의사결정 보고서 및 이력`  
-> **디바이스**: DESKTOP (1280px Grid 기준)  
-> **핵심 목적**: 소상공인시장진흥공단 지원사업 심의 및 상인회 정기총회 의결 시 즉시 인쇄·제출 가능한 표준 A4 공문서 서식 출력 및 의사결정 이력 보존.
-
-### 4.1 화면 레이아웃 구성도
-```
-+-----------------------------------------------------------------------------------+
-| GNB: (재)제주테크노파크 빅데이터 센터 | 상인회 의사결정 보고서 / 이력 (활성 탭)      |
-+-----------------------------------------------------------------------------------+
-| [상단 공식 공문서 컨트롤러 바]                                                    |
-|  - 좌측 타이틀: 상인회 정량 의사결정 공식 리포트 및 분석 이력 (제주테크노파크 인증) |
-|  - 우측 액션: [공식 회의용 A4 리포트 인쇄/PDF] [지자체 제출용 직인 날인] [엑셀 다운]|
-+-----------------------------------------------------------------------------------+
-| [메인 콘텐츠 레이아웃 (4:8 분할 구조)]                                            |
-|                                                                                   |
-| [좌측 사이드 패널 (Col-4)]           | [우측 A4 공식 공문서 본체 (Col-8)]          |
-|  1. 소속 상인회 인증 카드            |  - 문서번호: 제주-JTP-2024-1108호           |
-|     (제주시 구도심상인상생협의회 정회원) |  - 발급인증: 제주테크노파크원장 직인 날인     |
-|  2. 즐겨찾는 안건 폴더 (2개 프로젝트) |  - 의결 안건: 주말 영업일 인력 및 재고 배분 |
-|     - 2024 상인회 정기총회 안건 (활성)|  - 1. 주말 소비 트래픽 정량 비교 요약 표    |
-|     - 서귀포 야간 차없는거리 심의     |       (토 13,502건 vs 일 13,214건, +288건)  |
-|  3. 최근 질문 히스토리 필터          |  - 2. 상인회 공식 의사결정 권고안           |
-|     - '17년 11월 제주 구도심 내국인  |       * 토요일 피크타임(14~19시) 알바 집중  |
-|     - 서귀포시 17년 11월 내국인      |       * 일요일 19:30 이후 조기마감 권고     |
-|     - 5개월 추이 / 중국인 세그먼트   |  - 3. 15개월 시계열 추이 및 분기별 격차 원장 |
-|  4. 행정기관 보고서 무결성 보증 배너 |  - 전자서명 검증키: JTP-AUTH-88F4-0012      |
-+-----------------------------------------------------------------------------------+
-| [하단 활성 DB 엔진 상태 바]                                                       |
-|  - 상태: 정상 가동 (v2024.11-608, 120행 100% 매칭) | SHA256 해시 | [동기화 즉시 확인]|
-+-----------------------------------------------------------------------------------+
-```
-
-### 4.2 A4 공문서 규격 UI 컴포넌트 스니펫
-```html
-<!-- A4 리포트 용지 컨테이너 (실제 인쇄 규격 매핑) -->
-<div class="bg-white p-10 rounded-xl border border-slate-300 shadow-lg relative max-w-3xl mx-auto">
-  <!-- 공식 직인 스탬프 (우측 상단) -->
-  <div class="absolute top-8 right-8 flex flex-col items-center">
-    <div class="w-20 h-20 border-2 border-red-600 rounded-full flex flex-col items-center justify-center p-1 transform rotate-6 bg-red-50/20">
-      <span class="text-[9px] font-bold text-red-600 tracking-tighter">제주테크노파크</span>
-      <span class="text-xs font-black text-red-700 tracking-wider">원 장</span>
-      <span class="text-[9px] font-bold text-red-600">직 인</span>
-    </div>
-    <span class="text-[10px] text-slate-400 mt-1 font-mono">JTP-OFFICIAL</span>
-  </div>
-
-  <!-- 공문서 헤더 -->
-  <div class="border-b-2 border-slate-900 pb-5">
-    <div class="text-xs font-bold text-[#005BAC]">(재)제주테크노파크 / 디지털융합센터 빅데이터연구팀</div>
-    <div class="text-xs text-slate-500 mt-1">문서 관리번호 : 제주-JTP-2024-1108호</div>
-    <div class="text-xs text-slate-500">시행 일자 : 2024. 11. 20. (수) 정기 상인총회 상정</div>
-    <div class="mt-4 p-4 bg-slate-50 rounded border border-slate-200">
-      <div class="text-xs font-bold text-[#005BAC]">상인회 총회 심의 의결 안건</div>
-      <h2 class="text-lg font-bold text-slate-900 mt-1">
-        제주시 구도심 상권 주말(토·일) 영업일 인력 및 재고 배분 안건 의결의 건
-      </h2>
-      <div class="text-xs text-slate-500 mt-1">
-        수신: 제주시 구도심 상인상생협의회 대의원 귀하 · 참조: 제주특별자치도 경제활성화과
-      </div>
-    </div>
-  </div>
-
-  <!-- 안건 1: 정량 비교 요약 -->
-  <div class="mt-6">
-    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-      <span class="w-1.5 h-3.5 bg-[#005BAC] rounded-full"></span>
-      1. 주말 소비 카드 트래픽 정량 비교 요약
-    </h3>
-    <div class="grid grid-cols-3 gap-3 mt-3">
-      <div class="p-3 bg-[#F0FDFA] rounded border border-[#CCFBF1]">
-        <div class="text-[11px] font-semibold text-[#0D9488]">토요일(Saturday) 총 결제</div>
-        <div class="text-xl font-extrabold text-slate-900 tabular-nums">13,502 <span class="text-xs font-normal">건</span></div>
-        <div class="text-[10px] text-slate-500">점유율 50.54%</div>
-      </div>
-      <div class="p-3 bg-[#EFF6FF] rounded border border-[#DBEAFE]">
-        <div class="text-[11px] font-semibold text-[#2563EB]">일요일(Sunday) 총 결제</div>
-        <div class="text-xl font-extrabold text-slate-900 tabular-nums">13,214 <span class="text-xs font-normal">건</span></div>
-        <div class="text-[10px] text-slate-500">점유율 49.46%</div>
-      </div>
-      <div class="p-3 bg-[#0A1E3F] text-white rounded">
-        <div class="text-[11px] font-semibold text-slate-300">토 vs 일 격차 분석</div>
-        <div class="text-xl font-extrabold text-emerald-400 tabular-nums">+288 <span class="text-xs font-normal text-white">건</span></div>
-        <div class="text-[10px] text-slate-300">+2.18% 토요일 우세 집중</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 안건 2: 상인회 공식 의사결정 권고안 -->
-  <div class="mt-6 p-4 bg-blue-50/60 rounded-lg border border-blue-200">
-    <h3 class="text-xs font-bold text-[#005BAC] flex items-center gap-1.5">
-      <svg class="w-4 h-4 text-[#005BAC]" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>
-      2. 상인회 공식 의사결정 권고안 (Executive Guidance)
-    </h3>
-    <p class="text-xs text-slate-700 leading-relaxed mt-2 font-medium">
-      "토요일 피크타임(14:00~19:00) 아르바이트 집중 배치 및 일요일 조기마감 탄력제 도입 권고"
-    </p>
-    <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">
-      빅데이터 관측 결과 주말 매출 발생 건수가 토요일에 가중치(+288건)를 보이고 있으므로, 상권 내 회원 점포는 주말 인건비 지출 총액을 유지하되 토요일 오후 조 인력을 15% 확충하고, 일요일 19:30 이후 조기 마감 및 재고 결산을 통한 운영 고정비 절감 전략을 총회 결의로 권고함.
-    </p>
-  </div>
-
-  <!-- 안건 3: 무결성 전자서명 검증키 -->
-  <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
-    <div>
-      <span class="font-bold text-slate-700">제주공공데이터포털 공인 제608호 관측 데이터 원본 일치 증명</span><br>
-      알고리즘: JTP 1:1 Weekend Paired Verification v2.4
-    </div>
-    <div class="text-right">
-      <span class="font-mono text-xs font-bold text-[#005BAC]">JTP-AUTH-88F4-0012</span>
-    </div>
-  </div>
-</div>
-```
+### 4.2 화면 1: 제주머니 시작 화면 (간결형)
+- **목적**: 첫 인입 사용자가 서비스의 목적을 3초 안에 파악하고, 단 한 번의 클릭으로 비교 화면으로 넘어가도록 유도.
+- **주요 구성**:
+  1. **헤드라인**: `토요일과 일요일, 카드를 더 많이 쓴 날은?` (36~40px)
+  2. **설명 문구**: `제주시·서귀포시 구도심의 관광객 카드 결제 건수를 비교해 보세요.` (16px)
+  3. **단일 시작 CTA 버튼**:
+     - 텍스트: `주말 소비 비교하기 →`
+     - 스타일: `h-14 px-8 rounded-xl bg-[#005BAC] hover:bg-[#004785] text-white font-bold text-base shadow-sm`
+     - 인터랙션: 클릭 시 '비교 화면'으로 즉시 라우팅.
+  4. **보조 캡션**: `자료 기간 2016년 9월~2017년 11월` (버튼 직하단 13px `slate-500`)
+  5. **접이식 이용 방법 (하단 마이크로 아코디언)**:
+     - `∨ 이용 방법 알아보기` 버튼 클릭 시 질문 입력 및 조건 선택의 2단계 요약 안내 노출.
+  6. **배경 장식**: 하단 영역에 겹치지 않게 은은하게 깔리는 연한 블루톤의 한라산 능선 곡선.
 
 ---
 
-## Ⅴ. 3개 화면 연계 데이터 무결성 검증 기준표 (Data Contract)
+### 4.3 통합 입력 패널 (화면 2 & 3 상단 공통)
+> **원칙**: 지역, 대상, 기간을 개별 카드로 쪼개지 않고, 하나의 둥근 흰색 컨테이너(`rounded-2xl border border-slate-200 p-6 shadow-sm`) 안에 단정하게 배치.
 
-| 권역 / 소비자 군 | 관측 연월 | 토요일 결제건 | 일요일 결제건 | 순 격차 (토 - 일) | 우세 요일 | 화면 간 일관성 검증 |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **제주시 구도심 / 내국인** | **2017년 11월** | **13,502건** | **13,214건** | **+288건** | **토요일 우세** | 3개 화면(랜딩·콘솔·리포트) 핵심 공통 수치 |
-| **제주시 구도심 / 중국인** | 2017년 11월 | 279건 | 352건 | **-73건** | 일요일 우세 | 콘솔 필터 전환 시 즉시 반영 |
-| **서귀포시 구도심 / 내국인**| 2017년 11월 | 11,507건 | 10,509건 | **+998건** | 토요일 우세 | 랜딩 퀵체험 & 콘솔 파라미터 연동 |
-| **서귀포시 구도심 / 중국인**| 2017년 11월 | 40건 | 47건 | **-7건** | 일요일 우세 | 콘솔 장부 및 다차원 필터 연동 |
-| **제주시 구도심 / 내국인 5개월** | 2016.09 ~ 2017.01 | 57,133건 | 57,473건 | **-340건** | 일요일 우세 | 콘솔 시계열 추세선 및 누적 집계 연동 |
+1. **넓은 자연어 검색형 질문 입력창**:
+   - 높이 52px, 모서리 `rounded-xl`, 배경 `bg-slate-50 border border-slate-300`.
+   - 좌측 돋보기 아이콘(`search`, 20px) 내장.
+   - 플레이스홀더: `17년 11월 제주시 내국인 관광객의 토요일과 일요일을 비교해줘`
+   - 우측 CTA: 파란색 `결과 보기` 버튼 (`bg-[#005BAC] text-white px-5 rounded-lg`).
+2. **‘직접 골라도 돼요’ 가로형 3분할 셀렉터**:
+   - **지역 구분 (2분할 버튼)**: `제주시 구도심` / `서귀포시 구도심` (높이 42px). 선택 시 `bg-[#005BAC] text-white font-semibold`, 미선택 시 `bg-slate-100 text-slate-700`.
+   - **관광객 구분 (2분할 버튼)**: `내국인 관광객` / `중국인 관광객` (높이 42px).
+   - **분석 대상 기간 (셀렉트 박스 2개)**: `[시작월]` ~ `[종료월]` 드롭다운. 2016년 9월부터 2017년 11월까지 전체 선택 가능.
+   - 하단 캡션: `관측 지원 기간: 2016.09 ~ 2017.11`
+3. **실행 버튼**:
+   - 우측 정렬 또는 풀 위드, `[고른 조건으로 비교하기 →]` (높이 44px, `bg-slate-800` 또는 `bg-[#005BAC]`).
+   - 실행 중 상태: `비교하고 있어요...` 스피너 텍스트 표기.
 
 ---
 
-## Ⅵ. 요약 및 향후 확장 가이드
+### 4.4 화면 2: 주말 소비 비교 (처음 진입 상태)
+- **상태 정의**: 사용자가 조건을 입력하거나 질문을 실행하기 전 상태.
+- **중앙 안내 영역**:
+  - 결과 카드나 빈 차트를 노출하지 않고, 중앙에 정갈한 빈 상태(Empty State) 배너 배치.
+  - 아이콘: 연한 블루 원형 배경 안의 통계/돋보기 심벌 (`analytics` / `search`).
+  - 안내 문구: `궁금한 내용을 적거나, 위에서 조건을 골라보세요.`
+  - 보조 문구: `입력된 조건에 따라 토·일요일 결제 건수 차이 및 상권 동향 분석 결과가 표시됩니다.`
+  - **추천 질문 칩 (Prompt Chips)**:
+    - `'17년 11월 비교'`, `'서귀포시 주말 소비'`, `'16년 9월부터 17년 11월까지'`
+    - 클릭 시 질문 입력창에 텍스트가 자동 완성되며 비교 실행.
 
-1. **디자인 통일성 보장**: 모든 페이지는 JTP의 공공 신뢰성을 상징하는 `#005BAC`와 주말 요일 전용 컬러(토요일 `#0D9488`, 일요일 `#2563EB`)를 100% 동일하게 공유합니다.
-2. **소상공인 중심의 즉각적 전환**: 비회원 무료 원클릭 분석 체계를 유지하여, 첫 페이지(랜딩) 유입 후 단 1번의 클릭만으로 콘솔 분석 및 A4 공식 회의 리포트 인쇄까지 원스톱으로 연결됩니다.
-3. **법적·행정적 신뢰성**: 제주데이터허브 제608호 120행 원천 관측 데이터의 1:1 페어링 알고리즘 및 전자서명 검증키를 리포트에 명기하여 지자체 소상공인 골목상권 지원사업 심의 자료로 즉시 활용 가능합니다.
+---
+
+### 4.5 화면 3: 주말 소비 비교 (결과 화면)
+- **상태 정의**: 사용자가 질문 또는 조건 선택을 실행한 후 결과가 렌더링된 상태 (상단 입력 패널은 유지되어 언제든 조건 변경 가능).
+- **결과 섹션 상세 구조**:
+  1. **적용 조건 요약 배지**:
+     - `[적용 조건] 제주시 구도심 · 내국인 관광객 · 2017년 11월` (좌측)
+     - `관측 일수: 토요일 4회 / 일요일 4회 (1:1 등가 기준)` (우측)
+  2. **원라인 핵심 결론 문장**:
+     - `토요일에 카드 결제가 288건 더 많았어요` (28px ~ 32px Bold)
+     - `288건` 텍스트에 청록색 언더라인 또는 컬러 강조.
+     - 서브 문구: `총 주말 결제량 26,716건 중 토요일 결제 비중이 50.54%로 더 높았습니다.`
+  3. **2열 나란한 메트릭 카드 (토요일 vs 일요일)**:
+     - **토요일 카드**: 연한 청록 배경(`teal-50/60`), 청록 테두리, 수치 `13,502건` (대형 36px), 우측 상단 `우세 (+288)` 뱃지, 하단 `점유율 50.5%`.
+     - **일요일 카드**: 연한 블루 배경(`blue-50/60`), 블루 테두리, 수치 `13,214건` (대형 36px), 우측 상단 `안정 소비` 뱃지, 하단 `점유율 49.5%`.
+  4. **0 기준 동일 눈금 가로 막대 그래프**:
+     - 0건부터 기준 최대치(예: 16,000건)까지 착시 없이 동일한 축 스케일 적용.
+     - 토요일 바: 청록색(`bg-[#0D9488]`), 끝단 `13,502건 (84.4%)`.
+     - 일요일 바: 블루(`bg-[#2563EB]`), 끝단 `13,214건 (82.6%)`.
+     - 하단에 0건, 4,000건, 8,000건, 12,000건, 16,000건 눈금 가이드 표기.
+  5. **월별 추이 테이블 (‘달마다 어떻게 달랐나요?’)**:
+     - 열 구성: `월`, `토요일 결제`, `일요일 결제`, `차이 및 비교`.
+     - 모든 건수는 우측 정렬 및 `tabular-nums`.
+     - 차이 열: `↑ 토요일 288건 많음` (청록 뱃지) 형태로 자연어 표현.
+  6. **기간 보정 안내 배너 (특정 시나리오 연동)**:
+     - 질문: `'16년 3월부터 17년 1월까지 비교해줘'` 실행 시 표시.
+     - `[안내] 요청하신 기간 중 자료가 있는 2016년 9월부터 비교했어요.`
+     - 설명: 2016년 3~8월은 데이터 수집 이전이므로, 공식 관측 기간인 2016년 9월~2017년 1월 자료로 비교 (토 57,133건 vs 일 57,473건 → `일요일에 카드 결제가 340건 더 많았어요`).
+  7. **후속 질문 추천 칩**:
+     - `[그럼 서귀포는? →]`, `[달마다 차이 보기 →]` 마이크로 칩.
+  8. **자료와 계산 방법 보기 (접이식 아코디언)**:
+     - 기본 상태: 접힘 (`expand_more`).
+     - 내용: ① 공공데이터 출처(제주데이터허브 제608호), ② 1:1 주말 매칭 계산 원칙, ③ 공식 관측 기간(15개월) 및 제외 기간 사유 명시.
+
+---
+
+## 5. 반응형 브레이크포인트 규격 (Responsive Specs)
+
+| 디바이스 | 뷰포트 너비 | 레이아웃 규칙 | 폰트 & 패딩 스케일 |
+| :--- | :--- | :--- | :--- |
+| **Desktop** | `>= 1024px` | 단일 컬럼 중앙 정렬 (`max-w-[1000px]`), 3분할 셀렉터 가로 1열 배치, 메트릭 2열 나란히 배치 | 헤드라인 36~40px, 카드 패딩 `p-6` ~ `p-7`, 버튼 높이 48~56px |
+| **Tablet** | `768px ~ 1023px` | 여백 `px-4`, 셀렉터 3열 유지 또는 2열 래핑 | 헤드라인 30~34px, 카드 패딩 `p-5` |
+| **Mobile** | `<= 767px` | 가로 스크롤 없이 **1열 수직 스택(Single Column)**, 셀렉터 상하 배치 | 헤드라인 26~30px, 결론 22px, 카드 패딩 `p-4`, 터치 타깃 최소 48px |
+
+---
+
+## 6. 금지 및 주의 사항 (Guardrails)
+
+1. **미구현·과장 문구 절대 금지**:
+   - `우리 가게 손님` ➔ 반드시 `관광객`으로 표현.
+   - `통계 오차 제로`, `3초 만에 분석`, `상인회 공공 증빙`, `PDF 즉시 저장` 등 사실과 다르거나 미구현된 마케팅성 문구 사용 금지.
+2. **기관 홍보 및 불필요한 메타 정보 배제**:
+   - 제주테크노파크 운영기관 표기, 전화번호, 주소, 공공 보증 문구 배제.
+   - 푸터는 오직 `제주머니 · 자료 출처 제주데이터허브`만 간결하게 유지.
+3. **계정 및 접근 제어 배제**:
+   - 로그인, 회원가입, 프로필 아이콘 등 사용자를 가로막는 어떤 UI도 배치하지 않음.
+4. **시각적 왜곡 차트 금지**:
+   - 0 베이스라인이 아닌 그래프, 3D 왜곡 차트, 축 생략 절대 금지.
+
+---
+*본 문서는 '제주머니'의 시작 화면(`SCREEN_7`)과 주말 소비 비교 화면(`SCREEN_5`, `SCREEN_3`)을 단일 진실 공급원(SSOT)으로 하여 작성되었습니다.*
