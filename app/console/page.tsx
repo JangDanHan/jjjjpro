@@ -39,7 +39,10 @@ export default async function ConsolePage({ searchParams }: PageProps) {
   let initialResult = null
   let initialError: string | null = null
 
-  // URL 쿼리 파라미터에서 직접 조건(district, userType, startMonth, endMonth) 주입 지원
+  // URL 쿼리 파라미터에서 직접 조건(district, userType, startMonth, endMonth, q) 주입 지원
+  if (typeof params.q === 'string' && params.q.trim()) {
+    initialQuestion = params.q.trim()
+  }
   if (typeof params.district === 'string' && (params.district === '제주시' || params.district === '서귀포시')) {
     initialFilters = {
       ...initialFilters,
