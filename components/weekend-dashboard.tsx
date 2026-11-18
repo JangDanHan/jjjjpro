@@ -132,6 +132,67 @@ export function WeekendDashboard({
     })
   }
 
+  // URL 동기화 헬퍼 함수
+  const updateUrlParams = (params: {
+    district?: string
+    userType?: string
+    startMonth?: string
+    endMonth?: string
+    q?: string
+  }) => {
+    if (typeof window === 'undefined') return
+    const sp = new URLSearchParams()
+    if (params.district) sp.set('district', params.district)
+    if (params.userType) sp.set('userType', params.userType)
+    if (params.startMonth) sp.set('startMonth', params.startMonth)
+    if (params.endMonth) sp.set('endMonth', params.endMonth)
+    if (params.q) sp.set('q', params.q)
+    const newUrl = `${window.location.pathname}?${sp.toString()}`
+    window.history.replaceState(null, '', newUrl)
+  }
+
+  // 1. 지역(상권) 변경 핸들러: 관광객 유형과 조회 기간을 100% 유지하며 즉시 비교 실행
+  const handleDistrictChange = (newDistrict: '제주시' | '서귀포시') => {
+    setDistrict(newDistrict)
+    executeComparison(newDistrict, userType, startMonth, endMonth)
+    updateUrlParams({ district: newDistrict, userType, startMonth, endMonth, q: question })
+  }
+
+  // 2. 관광객 유형 변경 핸들러: 지역과 조회 기간 유지하며 즉시 비교 실행
+  const handleUserTypeChange = (newUserType: '내국인' | '중국인') => {
+    setUserType(newUserType)
+    executeComparison(district, newUserType, startMonth, endMonth)
+    updateUrlParams({ district, userType: newUserType, startMonth, endMonth, q: question })
+  }
+
+  // 3. 시작월 변경 핸들러: 지역과 관광객 유형 유지하며 즉시 비교 실행
+  const handleStartMonthChange = (newStart: string) => {
+    setStartMonth(newStart)
+    executeComparison(district, userType, newStart, endMonth)
+    updateUrlParams({ district, userType, startMonth: newStart, endMonth, q: question })
+  }
+
+  // 4. 종료월 변경 핸들러: 지역과 관광객 유형 유지하며 즉시 비교 실행
+  const handleEndMonthChange = (newEnd: string) => {
+    setEndMonth(newEnd)
+    executeComparison(district, userType, startMonth, newEnd)
+    updateUrlParams({ district, userType, startMonth, endMonth: newEnd, q: question })
+  }
+
+  // 5. 상단 메뉴 '상권별 비교' 클릭 핸들러: 비교 화면 활성화 및 지역 선택 영역으로 부드럽게 스크롤
+  const handleDistrictComparisonClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setHasQueried(true)
+    const elem = document.getElementById('district-selector')
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      elem.classList.add('ring-2', 'ring-[#005BAC]', 'ring-offset-2')
+      setTimeout(() => {
+        elem.classList.remove('ring-2', 'ring-[#005BAC]', 'ring-offset-2')
+      }, 1500)
+    }
+  }
+
   // 검색창 제출
   const handleQuerySubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault()
@@ -149,27 +210,24 @@ export function WeekendDashboard({
       endMonth,
     })
 
-    if (parsed.filters) {
-      if (parsed.filters.districtType) setDistrict(parsed.filters.districtType)
-      if (parsed.filters.userType) setUserType(parsed.filters.userType)
-      if (parsed.filters.startMonth) setStartMonth(parsed.filters.startMonth)
-      if (parsed.filters.endMonth) setEndMonth(parsed.filters.endMonth)
+    const targetD = parsed.filters?.districtType || district
+    const targetU = parsed.filters?.userType || userType
+    const targetS = parsed.filters?.startMonth || startMonth
+    const targetE = parsed.filters?.endMonth || endMonth
 
-      executeComparison(
-        parsed.filters.districtType || district,
-        parsed.filters.userType || userType,
-        parsed.filters.startMonth || startMonth,
-        parsed.filters.endMonth || endMonth,
-        q
-      )
-    } else {
-      executeComparison(district, userType, startMonth, endMonth, q)
-    }
+    setDistrict(targetD)
+    setUserType(targetU)
+    setStartMonth(targetS)
+    setEndMonth(targetE)
+
+    executeComparison(targetD, targetU, targetS, targetE, q)
+    updateUrlParams({ district: targetD, userType: targetU, startMonth: targetS, endMonth: targetE, q })
   }
 
   // 조건 선택 버튼 클릭 ("고른 조건으로 비교하기")
   const handleManualSubmit = () => {
     executeComparison(district, userType, startMonth, endMonth)
+    updateUrlParams({ district, userType, startMonth, endMonth, q: question })
   }
 
   // 추천 검색 프롬프트 칩 클릭
@@ -187,12 +245,13 @@ export function WeekendDashboard({
     const targetS = parsed.filters?.startMonth || startMonth
     const targetE = parsed.filters?.endMonth || endMonth
 
-    if (parsed.filters?.districtType) setDistrict(parsed.filters.districtType)
-    if (parsed.filters?.userType) setUserType(parsed.filters.userType)
-    if (parsed.filters?.startMonth) setStartMonth(parsed.filters.startMonth)
-    if (parsed.filters?.endMonth) setEndMonth(parsed.filters.endMonth)
+    setDistrict(targetD)
+    setUserType(targetU)
+    setStartMonth(targetS)
+    setEndMonth(targetE)
 
     executeComparison(targetD, targetU, targetS, targetE, text)
+    updateUrlParams({ district: targetD, userType: targetU, startMonth: targetS, endMonth: targetE, q: text })
   }
 
   // 후속 질문 칩 핸들러
@@ -201,13 +260,16 @@ export function WeekendDashboard({
       const q = '17년 11월 서귀포시 구도심 내국인 토요일과 일요일 비교'
       setQuestion(q)
       setDistrict('서귀포시')
+      // userType, startMonth, endMonth 유지
       executeComparison('서귀포시', userType, startMonth, endMonth, q)
+      updateUrlParams({ district: '서귀포시', userType, startMonth, endMonth, q })
     } else {
       const q = '2016년 9월부터 2017년 11월까지 월별 토일 소비 추이'
       setQuestion(q)
       setStartMonth('2016-09')
       setEndMonth('2017-11')
       executeComparison(district, userType, '2016-09', '2017-11', q)
+      updateUrlParams({ district, userType, startMonth: '2016-09', endMonth: '2017-11', q })
     }
   }
 
@@ -290,16 +352,17 @@ export function WeekendDashboard({
 
           {/* 중앙 & 우측 내비게이션 */}
           <div className="flex items-center gap-4 sm:gap-6">
-            <nav className="flex items-center gap-4 text-sm font-medium">
-              <Link className="text-[#005BAC] font-semibold transition-colors" href="/">
+            <nav className="flex items-center gap-5 text-sm font-medium">
+              <Link className="text-slate-600 hover:text-[#005BAC] transition-colors" href="/">
                 처음으로
               </Link>
-              <Link className="text-slate-600 hover:text-[#005BAC] transition-colors" href="/compare">
+              <button
+                type="button"
+                onClick={handleDistrictComparisonClick}
+                className="text-[#005BAC] font-semibold transition-colors cursor-pointer"
+              >
                 상권별 비교
-              </Link>
-              <Link className="hidden sm:inline-block text-slate-600 hover:text-[#005BAC] transition-colors" href="/history">
-                업종별 소비 동향
-              </Link>
+              </button>
             </nav>
 
             <div className="h-4 w-px bg-slate-300" />
@@ -391,12 +454,12 @@ export function WeekendDashboard({
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* 1) 지역 구분 */}
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-1.5 transition-all rounded-lg p-0.5" id="district-selector">
                   <label className="text-xs font-medium text-slate-600">지역 구분</label>
                   <div className="grid grid-cols-2 gap-1.5 bg-[#F0F3FF] p-1 rounded-lg">
                     <button
                       type="button"
-                      onClick={() => setDistrict('제주시')}
+                      onClick={() => handleDistrictChange('제주시')}
                       className={`py-2 rounded-md text-xs sm:text-sm transition-all text-center cursor-pointer ${
                         district === '제주시'
                           ? 'bg-[#005BAC] text-white font-semibold shadow-xs'
@@ -407,7 +470,7 @@ export function WeekendDashboard({
                     </button>
                     <button
                       type="button"
-                      onClick={() => setDistrict('서귀포시')}
+                      onClick={() => handleDistrictChange('서귀포시')}
                       className={`py-2 rounded-md text-xs sm:text-sm transition-all text-center cursor-pointer ${
                         district === '서귀포시'
                           ? 'bg-[#005BAC] text-white font-semibold shadow-xs'
@@ -425,7 +488,7 @@ export function WeekendDashboard({
                   <div className="grid grid-cols-2 gap-1.5 bg-[#F0F3FF] p-1 rounded-lg">
                     <button
                       type="button"
-                      onClick={() => setUserType('내국인')}
+                      onClick={() => handleUserTypeChange('내국인')}
                       className={`py-2 rounded-md text-xs sm:text-sm transition-all text-center cursor-pointer ${
                         userType === '내국인'
                           ? 'bg-[#005BAC] text-white font-semibold shadow-xs'
@@ -436,7 +499,7 @@ export function WeekendDashboard({
                     </button>
                     <button
                       type="button"
-                      onClick={() => setUserType('중국인')}
+                      onClick={() => handleUserTypeChange('중국인')}
                       className={`py-2 rounded-md text-xs sm:text-sm transition-all text-center cursor-pointer ${
                         userType === '중국인'
                           ? 'bg-[#005BAC] text-white font-semibold shadow-xs'
@@ -455,7 +518,7 @@ export function WeekendDashboard({
                     <div className="relative flex-1">
                       <select
                         value={startMonth}
-                        onChange={(e) => setStartMonth(e.target.value)}
+                        onChange={(e) => handleStartMonthChange(e.target.value)}
                         className="w-full appearance-none bg-[#F0F3FF] text-[#111C2C] text-xs sm:text-sm py-2 px-3 rounded-lg pr-7 outline-hidden cursor-pointer"
                       >
                         {ALL_MONTHS.map((m) => (
@@ -472,7 +535,7 @@ export function WeekendDashboard({
                     <div className="relative flex-1">
                       <select
                         value={endMonth}
-                        onChange={(e) => setEndMonth(e.target.value)}
+                        onChange={(e) => handleEndMonthChange(e.target.value)}
                         className="w-full appearance-none bg-[#F0F3FF] text-[#111C2C] text-xs sm:text-sm py-2 px-3 rounded-lg pr-7 outline-hidden cursor-pointer"
                       >
                         {ALL_MONTHS.map((m) => (

@@ -20,16 +20,25 @@ export function LandingPortal(_props?: LandingPortalProps) {
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-900">제주머니</span>
           </Link>
-          <a
-            className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 transition-colors py-1.5 px-2.5 rounded-lg hover:bg-slate-200/50"
-            href="https://www.jejudatahub.net"
-            rel="noopener noreferrer"
-            target="_blank"
-            title="제주데이터허브 공식 포털 바로가기"
-          >
-            <span>자료 출처</span>
-            <ExternalLink className="size-3.5" />
-          </a>
+          <div className="flex items-center gap-4 sm:gap-6 text-sm">
+            <Link
+              href="/compare"
+              className="font-medium text-slate-600 hover:text-[#005BAC] transition-colors"
+            >
+              상권별 비교
+            </Link>
+            <div className="h-3.5 w-px bg-slate-300" />
+            <a
+              className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 transition-colors py-1.5 px-2.5 rounded-lg hover:bg-slate-200/50"
+              href="https://www.jejudatahub.net"
+              rel="noopener noreferrer"
+              target="_blank"
+              title="제주데이터허브 공식 포털 바로가기"
+            >
+              <span>자료 출처</span>
+              <ExternalLink className="size-3.5" />
+            </a>
+          </div>
         </div>
       </header>
 

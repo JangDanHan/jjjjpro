@@ -43,16 +43,20 @@ export default async function ConsolePage({ searchParams }: PageProps) {
   if (typeof params.q === 'string' && params.q.trim()) {
     initialQuestion = params.q.trim()
   }
-  if (typeof params.district === 'string' && (params.district === '제주시' || params.district === '서귀포시')) {
-    initialFilters = {
-      ...initialFilters,
-      districtType: params.district as Filters['districtType'],
+  if (typeof params.district === 'string') {
+    const d = params.district.toLowerCase()
+    if (d === '제주시' || d === 'jeju') {
+      initialFilters = { ...initialFilters, districtType: '제주시' }
+    } else if (d === '서귀포시' || d === 'seogwipo') {
+      initialFilters = { ...initialFilters, districtType: '서귀포시' }
     }
   }
-  if (typeof params.userType === 'string' && (params.userType === '내국인' || params.userType === '중국인')) {
-    initialFilters = {
-      ...initialFilters,
-      userType: params.userType as Filters['userType'],
+  if (typeof params.userType === 'string') {
+    const u = params.userType.toLowerCase()
+    if (u === '내국인' || u === 'domestic' || u === 'korean') {
+      initialFilters = { ...initialFilters, userType: '내국인' }
+    } else if (u === '중국인' || u === 'chinese') {
+      initialFilters = { ...initialFilters, userType: '중국인' }
     }
   }
   if (typeof params.startMonth === 'string' && /^\d{4}-\d{2}$/.test(params.startMonth)) {
